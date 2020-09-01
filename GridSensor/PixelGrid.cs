@@ -67,7 +67,8 @@ namespace MBaske
             base.Write(channel, x, y, value);
             int layer = channel / 3;
             int color = channel - layer * 3;
-            m_Colors[layer][y * m_Width + x][color] = (byte)(value * 255f);
+            // Bottom to top, left to right.
+            m_Colors[layer][(m_Height - y - 1) * m_Width + x][color] = (byte)(value * 255f);
         }
 
         /// <summary>
