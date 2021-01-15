@@ -74,8 +74,17 @@ namespace MLGridSensor
         public virtual void ClearLayer(int layer)
         {
             base.ClearChannel(layer * 3);
-            base.ClearChannel(layer * 3 + 1);
-            base.ClearChannel(layer * 3 + 2);
+
+            if (m_Channels > layer * 3 + 1)
+            {
+                base.ClearChannel(layer * 3 + 1);
+            }
+
+            if (m_Channels > layer * 3 + 2)
+            {
+                base.ClearChannel(layer * 3 + 2);
+            }
+            
             ClearLayerColors(layer);
         }
 
