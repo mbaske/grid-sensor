@@ -2,25 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MBaske
+namespace MLGridSensor
 {
     /// <summary>
     /// 3D data structure for storing float values and pixel colors.
     /// </summary>
     public class PixelGrid : ChannelGrid
     {
-        protected int m_NumLayers;
-
         /// <summary>
         /// The number of layers in the grid. A layer contains three (color) channels.
         /// Equivalent to the number of textures encoded by the <see cref="GridSensor"/>.
         /// </summary>
-        public int NumLayers
+        public int Layers
         {
-            get { return m_NumLayers; }
+            get { return m_Layers; }
         }
+        protected int m_Layers;
 
         protected Color32[][] m_Colors;
+        private Color32[] c_Black;
 
         /// <summary>
         /// Initializes the grid.
@@ -32,27 +32,63 @@ namespace MBaske
         public PixelGrid(int numChannels, int width, int height, string name = "PixelGrid")
             : base(numChannels, width, height, name) { }
 
-        protected override void Initialize()
-        {
-            base.Initialize();
+        /// <summary>
+        /// Initializes the grid.
+        /// </summary>
+        /// <param name="shape">The grid's observation shape.</param>
+        /// <param name="name">The name of the grid instance.</param>
+        public PixelGrid(GridObservationShape shape, string name = "PixelGrid")
+            : base(shape, name) { }
 
-            m_NumLayers = Mathf.CeilToInt(m_NumChannels / 3f);
-            m_Colors = new Color32[m_NumLayers][];
-            for (int i = 0; i < m_NumLayers; i++)
+
+        protected override void Allocate()
+        {
+            base.Allocate();
+
+            m_Layers = Mathf.CeilToInt(m_Channels / 3f);
+            m_Colors = new Color32[m_Layers][];
+
+            for (int i = 0; i < m_Layers; i++)
             {
                 m_Colors[i] = new Color32[m_Width * m_Height];
             }
-            ResetColors();
+
+            c_Black = Enumerable.Repeat(new Color32(0, 0, 0, 255), m_Width * m_Height).ToArray();
+            ClearColors();
         }
 
+
         /// <summary>
-        /// Clears all grid values by setting them to 0. Resets all pixels to black.
+        /// Clears all grid values by setting them to 0. Sets all pixels to black.
         /// </summary>
         public override void Clear()
         {
             base.Clear();
-            ResetColors();
+            ClearColors();
         }
+
+        /// <summary>
+        /// Clears grid values of a specified layer by setting them to 0. Sets layer pixels to black.
+        /// <param name="layer">The layer index.</param>
+        /// </summary>
+        public virtual void ClearLayer(int layer)
+        {
+            base.ClearChannel(layer * 3);
+            base.ClearChannel(layer * 3 + 1);
+            base.ClearChannel(layer * 3 + 2);
+            ClearLayerColors(layer);
+        }
+
+        /// <summary>
+        /// Clears grid values of a specified channel by setting them to 0. Sets channel's pixels' color to 0.
+        /// <param name="channel">The channel index.</param>
+        /// </summary>
+        public override void ClearChannel(int channel)
+        {
+            base.ClearChannel(channel);
+            ClearChannelColors(channel);
+        }
+
 
         /// <summary>
         /// Writes a float value to a specified grid cell and sets the corresponding pixel color.
@@ -77,18 +113,33 @@ namespace MBaske
         /// <returns>Color32 array for each layer.</returns>
         public IEnumerable<Color32[]> GetColors()
         {
-            for (int i = 0; i < m_NumLayers; i++)
+            for (int i = 0; i < m_Layers; i++)
             {
                 yield return m_Colors[i];
             }
         }
 
-        private void ResetColors()
+        private void ClearColors()
         {
-            var black = Enumerable.Repeat(new Color32(0, 0, 0, 255), m_Width * m_Height).ToArray();
-            for (int i = 0; i < m_NumLayers; i++)
+            for (int i = 0; i < m_Layers; i++)
             {
-                System.Array.Copy(black, m_Colors[i], m_Colors[i].Length);
+                ClearLayerColors(i);
+            }
+        }
+
+        private void ClearLayerColors(int layer)
+        {
+            System.Array.Copy(c_Black, m_Colors[layer], m_Colors[layer].Length);
+        }
+
+        private void ClearChannelColors(int channel)
+        {
+            int layer = channel / 3;
+            int color = channel - layer * 3;
+
+            for (int i = 0; i < m_Colors[layer].Length; i++)
+            {
+                m_Colors[layer][i][color] = 0;
             }
         }
     }

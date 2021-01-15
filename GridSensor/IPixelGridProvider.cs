@@ -1,5 +1,5 @@
 ﻿
-namespace MBaske
+namespace MLGridSensor
 {
     public interface IPixelGridProvider
     {

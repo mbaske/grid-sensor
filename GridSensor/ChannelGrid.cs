@@ -1,14 +1,12 @@
 ﻿using UnityEngine;
 
-namespace MBaske
+namespace MLGridSensor
 {
     /// <summary>
     /// 3D data structure for storing float values.
     /// </summary>
     public class ChannelGrid
     {
-        protected string m_Name;
-
         /// <summary>
         /// The grid instance name.
         /// </summary>
@@ -17,19 +15,17 @@ namespace MBaske
             get { return m_Name; }
             set { m_Name = value; }
         }
-
-        protected int m_NumChannels;
+        protected string m_Name;
 
         /// <summary>
         /// The number of grid channels.
         /// </summary>
-        public int NumChannels
+        public int Channels
         {
-            get { return m_NumChannels; }
-            set { m_NumChannels = value; Initialize(); }
+            get { return m_Channels; }
+            set { m_Channels = value; Allocate(); }
         }
-
-        protected int m_Width;
+        protected int m_Channels;
 
         /// <summary>
         /// The width of the grid.
@@ -37,10 +33,9 @@ namespace MBaske
         public int Width
         {
             get { return m_Width; }
-            set { m_Width = value; Initialize(); }
+            set { m_Width = value; Allocate(); }
         }
-
-        protected int m_Height;
+        protected int m_Width;
 
         /// <summary>
         /// The height of the grid.
@@ -48,28 +43,28 @@ namespace MBaske
         public int Height
         {
             get { return m_Height; }
-            set { m_Height = value; Initialize(); }
+            set { m_Height = value; Allocate(); }
         }
-
-        protected Vector2Int m_Dimensions;
+        protected int m_Height;
 
         /// <summary>
         /// The width and height of the grid as Vector2Int.
         /// </summary>
         public Vector2Int Dimensions
         {
-            get { return m_Dimensions; }
+            get { return new Vector2Int(m_Width, m_Height); }
+            set { m_Width = value.x; m_Height = value.y ; Allocate(); }
         }
-
-        protected int m_NumValues;
 
         /// <summary>
-        /// The total number of values stored in the grid (width * height * number of channels).
-        /// </summary>
-        public int NumValues
+        /// The grid's observation shape.
+        /// </summary
+        public GridObservationShape Shape
         {
-            get { return m_NumValues; }
+            get { return new GridObservationShape(m_Channels, m_Width, m_Height); }
+            set { m_Channels = value.Channels; m_Width = value.Width; m_Height = value.Height; Allocate(); }
         }
+
 
         // [channel][y * width + x]
         protected float[][] m_Values;
@@ -77,42 +72,56 @@ namespace MBaske
         /// <summary>
         /// Initializes the grid.
         /// </summary>
-        /// <param name="numChannels">The number of channels.</param>
+        /// <param name="channels">The number of channels.</param>
         /// <param name="width">The width of the grid.</param>
         /// <param name="height">The height of the grid.</param>
         /// <param name="name">The name of the grid instance.</param>
-        public ChannelGrid(int numChannels, int width, int height, string name = "Grid")
+        public ChannelGrid(int channels, int width, int height, string name = "Grid")
         {
-            m_NumChannels = numChannels;
+            m_Channels = channels;
             m_Width = width;
             m_Height = height;
             m_Name = name;
 
-            Initialize();
+            Allocate();
         }
 
-        protected virtual void Initialize()
+        /// <summary>
+        /// Initializes the grid.
+        /// </summary>
+        /// <param name="shape">The grid's observation shape.</param>
+        /// <param name="name">The name of the grid instance.</param>
+        public ChannelGrid(GridObservationShape shape, string name = "Grid")
+            : this(shape.Channels, shape.Width, shape.Height, name) { }
+
+        protected virtual void Allocate()
         {
-            m_Dimensions = new Vector2Int(m_Width, m_Height);
-            m_NumValues = m_NumChannels * m_Width * m_Height;
+            m_Values = new float[m_Channels][];
 
-            m_Values = new float[m_NumChannels][];
-
-            for (int i = 0; i < m_NumChannels; i++)
+            for (int i = 0; i < m_Channels; i++)
             {
                 m_Values[i] = new float[m_Width * m_Height];
             }
         }
 
         /// <summary>
-        /// Clears all grid values.
+        /// Clears all grid values by setting them to 0.
         /// </summary>
         public virtual void Clear()
         {
-            for (int i = 0; i < m_NumChannels; i++)
+            for (int i = 0; i < m_Channels; i++)
             {
-                System.Array.Clear(m_Values[i], 0, m_Values[i].Length);
+                ClearChannel(i);
             }
+        }
+
+        /// <summary>
+        /// Clears grid values of a specified channel by setting them to 0.
+        /// <param name="channel">The channel index.</param>
+        /// </summary>
+        public virtual void ClearChannel(int channel)
+        {
+            System.Array.Clear(m_Values[channel], 0, m_Values[channel].Length);
         }
 
         /// <summary>

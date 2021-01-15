@@ -1,34 +1,27 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Unity.MLAgents.Sensors;
 #if (UNITY_EDITOR)
 using UnityEditor;
 #endif
 
-namespace MBaske
+namespace MLGridSensor
 {
     /// <summary>
     /// Component that wraps a <see cref="GridSensor"/>.
     /// </summary>
-    [RequireComponent(typeof(IPixelGridProvider))]
     public class GridSensorComponent : SensorComponent
     {
-        GridSensor m_Sensor;
-
-        [HideInInspector, SerializeField]
-        string m_SensorName = "GridSensor";
-
         /// <summary>
         /// Name of the generated <see cref="GridSensor"/>.
-        /// Note that changing this at runtime does not affect how the Agent sorts the sensors.
         /// </summary>
         public string SensorName
         {
             get { return m_SensorName; }
-            set { m_SensorName = value; }
+            set { m_SensorName = value; UpdateSensor(); }
         }
-
         [HideInInspector, SerializeField]
-        SensorCompressionType m_Compression = SensorCompressionType.None;
+        private string m_SensorName = "GridSensor";
 
         /// <summary>
         /// The compression type to use for the sensor.
@@ -38,30 +31,79 @@ namespace MBaske
             get { return m_Compression; }
             set { m_Compression = value; UpdateSensor(); }
         }
+        [HideInInspector, SerializeField]
+        private SensorCompressionType m_Compression = SensorCompressionType.PNG;
+
+        /// <summary>
+        /// The IPixelGridProvider to use for the sensor.
+        /// Optional - if not set, the serialized MonoBehaviour will be used.
+        /// </summary>
+        public IPixelGridProvider PixelGridProvider
+        {
+            get { return m_IPixelGridProvider; }
+            set { m_IPixelGridProvider = value; UpdateSensor();  }
+        }
+        private IPixelGridProvider m_IPixelGridProvider;
+
+        // TODO Can't serialize an interface. 
+        // Assuming a MonoBehaviour is implementing IPixelGridProvider.
+        [HideInInspector, SerializeField]
+        private MonoBehaviour m_PixelGridProvider;
+
+        private GridSensor m_Sensor;
 
         /// <inheritdoc/>
         public override ISensor CreateSensor()
         {
-            var grid = GetComponent<IPixelGridProvider>().GetPixelGrid();
-            m_Sensor = new GridSensor(grid, m_Compression, m_SensorName);
+            m_Sensor ??= new GridSensor(GetPixelGrid(), m_Compression, m_SensorName);
             return m_Sensor;
         }
 
         /// <inheritdoc/>
         public override int[] GetObservationShape()
         {
-            var grid = GetComponent<IPixelGridProvider>().GetPixelGrid(); 
-            return new[] { grid.Width, grid.Height, grid.NumChannels };
+            return GetPixelGrid().Shape.ToArray();
         }
 
         /// <summary>
-        /// Update fields that are safe to change on the Sensor at runtime.
+        /// Updates the sensor.
         /// </summary>
         public void UpdateSensor()
         {
             if (m_Sensor != null)
             {
+                m_Sensor.SensorName = m_SensorName;
                 m_Sensor.CompressionType = m_Compression;
+                m_Sensor.PixelGrid = GetPixelGrid();
+            }
+        }
+
+        private PixelGrid GetPixelGrid()
+        {
+            if (m_IPixelGridProvider != null)
+            {
+                // Takes precedence over serialized MonoBehaviour.
+                return m_IPixelGridProvider.GetPixelGrid();
+            }
+
+            if (m_PixelGridProvider == null)
+            {
+                throw new MissingFieldException("Missing PixelGridProvider");
+            }
+            else if (!(m_PixelGridProvider is IPixelGridProvider))
+            {
+                throw new NotImplementedException("Serialized MonoBehaviour doesn't implement IPixelGridProvider");
+            }
+
+            return ((IPixelGridProvider)m_PixelGridProvider).GetPixelGrid();
+        }
+
+        private void Reset()
+        {
+            var provider = GetComponent<IPixelGridProvider>();
+            if (provider != null)
+            {
+                m_PixelGridProvider = (MonoBehaviour)provider;
             }
         }
     }
@@ -77,26 +119,21 @@ namespace MBaske
             so.Update();
 
             EditorGUI.BeginChangeCheck();
-            EditorGUI.BeginDisabledGroup(Application.isPlaying);
             {
-                EditorGUILayout.PropertyField(so.FindProperty("m_SensorName"), true);
-                EditorGUILayout.PropertyField(so.FindProperty("m_Compression"), true);
+                EditorGUI.BeginDisabledGroup(Application.isPlaying);
+                {
+                    EditorGUILayout.PropertyField(so.FindProperty("m_SensorName"), true);
+                    EditorGUILayout.PropertyField(so.FindProperty("m_Compression"), true);
+                    EditorGUILayout.PropertyField(so.FindProperty("m_PixelGridProvider"), true);
+                }
+                EditorGUI.EndDisabledGroup();
             }
-            EditorGUI.EndDisabledGroup();
-
-            var requireSensorUpdate = EditorGUI.EndChangeCheck();
-            so.ApplyModifiedProperties();
-
-            if (requireSensorUpdate)
+            if (EditorGUI.EndChangeCheck())
             {
-                UpdateSensor();
+                so.ApplyModifiedProperties();
+                var comp = serializedObject.targetObject as GridSensorComponent;
+                comp.UpdateSensor();
             }
-        }
-
-        void UpdateSensor()
-        {
-            var sensorComponent = serializedObject.targetObject as GridSensorComponent;
-            sensorComponent?.UpdateSensor();
         }
     }
 #endif
