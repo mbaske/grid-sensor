@@ -48,7 +48,7 @@ namespace MLGridSensor
                 m_Textures[i].SetPixels32(colors);
                 m_Textures[i].Apply();
                 GUI.DrawTexture(rect, m_Textures[i]);
-                rect.x += (m_Grid.Width + 1) * m_Magnify;
+                rect.y += (m_Grid.Width + 1) * m_Magnify;
                 i++;
             }
         }
