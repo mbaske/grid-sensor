@@ -5,7 +5,6 @@ namespace MLGridSensor
     /// <summary>
     /// Draws each <see cref="PixelGrid"/> layer into a GUI texture.
     /// </summary>
-    [RequireComponent(typeof(IPixelGridProvider))]
     public class PixelGridVisualizer : MonoBehaviour
     {
         [SerializeField, Range(1, 16)]
@@ -16,14 +15,23 @@ namespace MLGridSensor
         private PixelGrid m_Grid;
         private Texture2D[] m_Textures;
 
+        private void Awake()
+        {
+            Initialize();
+        }
+
         private void Initialize()
         {
+            m_Grid = GetComponent<GridSensorComponent>().GetPixelGrid();
             m_Textures = new Texture2D[m_Grid.Layers];
+
             for (int i = 0; i < m_Grid.Layers; i++)
             {
-                m_Textures[i] = new Texture2D(m_Grid.Width, m_Grid.Width, TextureFormat.RGB24, false);
-                m_Textures[i].filterMode = FilterMode.Point;
-                m_Textures[i].wrapMode = TextureWrapMode.Clamp;
+                m_Textures[i] = new Texture2D(m_Grid.Width, m_Grid.Height, TextureFormat.RGB24, false)
+                {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
             }
         }
 
@@ -31,7 +39,6 @@ namespace MLGridSensor
         {
             if (m_Grid == null)
             {
-                m_Grid = GetComponent<IPixelGridProvider>().GetPixelGrid();
                 Initialize();
             }
 

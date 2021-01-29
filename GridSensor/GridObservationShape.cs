@@ -1,3 +1,4 @@
+using UnityEngine;
 
 namespace MLGridSensor
 {
@@ -11,19 +12,32 @@ namespace MLGridSensor
 
     public struct GridObservationShape
     {
+        public int StackSize;
         public int Channels;
         public int Width;
         public int Height;
 
         public int Size => Channels * Width * Height;
+        public int ChannelsPerStackLayer => Channels / StackSize;
 
-        public GridObservationShape(int channels, int width, int height)
+        public GridObservationShape(int stackSize, int channels, int width, int height)
         {
-            Channels = channels;
+            StackSize = stackSize;
+            Channels = channels * stackSize;
             Width = width;
             Height = height;
         }
 
+        public GridObservationShape(int stackSize, int channels, Vector2Int size)
+            : this(stackSize, channels, size.x, size.y) { }
+
+        public GridObservationShape(int channels, int width, int height) 
+            : this(1, channels, width, height) { }
+
+        public GridObservationShape(int channels, Vector2Int size) 
+            : this(1, channels, size.x, size.y) { }
+
+        
         public bool Validate(EncoderType type)
         {
             int s = (int)type;

@@ -108,7 +108,7 @@ namespace MLGridSensor
         /// <param name="value">The value to write.</param>
         public override void Write(int channel, int x, int y, float value)
         {
-            Debug.Assert(value >= 0f && value <= 1f, "Value must be between 0 and 1");
+            Debug.Assert(value >= 0f && value <= 1f, $"Value {value} must be between 0 and 1");
             base.Write(channel, x, y, value);
             int layer = channel / 3;
             int color = channel - layer * 3;
@@ -124,8 +124,13 @@ namespace MLGridSensor
         {
             for (int i = 0; i < m_Layers; i++)
             {
-                yield return m_Colors[i];
+                yield return GetColors(i);
             }
+        }
+
+        public Color32[] GetColors(int layer)
+        {
+            return m_Colors[layer];
         }
 
         private void ClearColors()

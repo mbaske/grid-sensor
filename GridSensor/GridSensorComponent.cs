@@ -21,18 +21,18 @@ namespace MLGridSensor
             set { m_SensorName = value; UpdateSensor(); }
         }
         [HideInInspector, SerializeField]
-        private string m_SensorName = "GridSensor";
+        protected string m_SensorName = "GridSensor";
 
         /// <summary>
         /// The compression type to use for the sensor.
         /// </summary>
         public SensorCompressionType CompressionType
         {
-            get { return m_Compression; }
-            set { m_Compression = value; UpdateSensor(); }
+            get { return m_CompressionType; }
+            set { m_CompressionType = value; UpdateSensor(); }
         }
         [HideInInspector, SerializeField]
-        private SensorCompressionType m_Compression = SensorCompressionType.PNG;
+        protected SensorCompressionType m_CompressionType = SensorCompressionType.PNG;
 
         /// <summary>
         /// The IPixelGridProvider to use for the sensor.
@@ -43,19 +43,19 @@ namespace MLGridSensor
             get { return m_IPixelGridProvider; }
             set { m_IPixelGridProvider = value; UpdateSensor();  }
         }
-        private IPixelGridProvider m_IPixelGridProvider;
+        protected IPixelGridProvider m_IPixelGridProvider;
 
         // TODO Can't serialize an interface. 
         // Assuming a MonoBehaviour is implementing IPixelGridProvider.
         [HideInInspector, SerializeField]
-        private MonoBehaviour m_PixelGridProvider;
+        protected MonoBehaviour m_PixelGridProvider;
 
-        private GridSensor m_Sensor;
+        protected GridSensor m_Sensor;
 
         /// <inheritdoc/>
         public override ISensor CreateSensor()
         {
-            m_Sensor ??= new GridSensor(GetPixelGrid(), m_Compression, m_SensorName);
+            m_Sensor ??= new GridSensor(GetPixelGrid(), m_CompressionType, m_SensorName);
             return m_Sensor;
         }
 
@@ -68,17 +68,17 @@ namespace MLGridSensor
         /// <summary>
         /// Updates the sensor.
         /// </summary>
-        public void UpdateSensor()
+        public virtual void UpdateSensor()
         {
             if (m_Sensor != null)
             {
                 m_Sensor.SensorName = m_SensorName;
-                m_Sensor.CompressionType = m_Compression;
+                m_Sensor.CompressionType = m_CompressionType;
                 m_Sensor.PixelGrid = GetPixelGrid();
             }
         }
 
-        private PixelGrid GetPixelGrid()
+        public virtual PixelGrid GetPixelGrid()
         {
             if (m_IPixelGridProvider != null)
             {

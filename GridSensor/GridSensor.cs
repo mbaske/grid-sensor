@@ -18,6 +18,11 @@ namespace MLGridSensor
         public event Action UpdateEvent;
 
         /// <summary>
+        /// Invoked on ISensor.Reset()
+        /// </summary>
+        public event Action ResetEvent;
+
+        /// <summary>
         /// Name of the sensor.
         /// </summary>
         public string SensorName
@@ -25,7 +30,7 @@ namespace MLGridSensor
             get { return m_SensorName; }
             set { m_SensorName = value; }
         }
-        private string m_SensorName = "GridSensor";
+        protected string m_SensorName = "GridSensor";
 
         /// <summary>
         /// The PixelGrid used by the sensor.
@@ -35,7 +40,7 @@ namespace MLGridSensor
             get { return m_PixelGrid; }
             set { m_PixelGrid = value; Allocate(); }
         }
-        private PixelGrid m_PixelGrid;
+        protected PixelGrid m_PixelGrid;
 
         /// <summary>
         /// The compression type used by the sensor.
@@ -45,13 +50,13 @@ namespace MLGridSensor
             get { return m_Compression; }
             set { m_Compression = value; Allocate(); }
         }
-        private SensorCompressionType m_Compression;
+        protected SensorCompressionType m_Compression;
 
 
-        private GridObservationShape m_Shape;
+        protected GridObservationShape m_Shape;
         // PNG compression.
-        private Texture2D m_Texture2D;
-        private List<byte> m_Bytes;
+        protected Texture2D m_Texture2D;
+        protected List<byte> m_Bytes;
 
         /// <summary>
         /// Initializes the sensor.
@@ -68,7 +73,7 @@ namespace MLGridSensor
             Allocate();
         }
 
-        private void Allocate()
+        protected void Allocate()
         {
             m_Shape = m_PixelGrid.Shape;
 
@@ -128,15 +133,16 @@ namespace MLGridSensor
         }
 
         /// <inheritdoc/>
-        public void Update() 
+        public virtual void Update() 
         {
             UpdateEvent?.Invoke();
         }
 
         /// <inheritdoc/>
-        public void Reset() 
+        public virtual void Reset() 
         {
             m_PixelGrid.Clear();
+            ResetEvent?.Invoke();
         }
     }
 }
