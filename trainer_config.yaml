@@ -1,0 +1,53 @@
+behaviors:
+
+  Pilot:
+    trainer_type: ppo
+    hyperparameters:
+      batch_size: 64
+      buffer_size: 2024
+      learning_rate: 0.0003
+      beta: 0.01
+      epsilon: 0.2
+      lambd: 0.95
+      num_epoch: 3
+      learning_rate_schedule: linear
+    network_settings:
+      normalize: false
+      hidden_units: 512
+      num_layers: 2
+      vis_encode_type: simple
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+    keep_checkpoints: 10
+    max_steps: 1e7
+    time_horizon: 512
+    summary_freq: 10000
+    threaded: true
+
+  Driver:
+    trainer_type: ppo
+    hyperparameters:
+      batch_size: 64
+      buffer_size: 2024
+      learning_rate: 0.0003
+      beta: 0.01
+      epsilon: 0.2
+      lambd: 0.95
+      num_epoch: 3
+      learning_rate_schedule: linear
+    network_settings:
+      normalize: false
+      hidden_units: 512
+      num_layers: 2
+      vis_encode_type: simple
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+    keep_checkpoints: 10
+    max_steps: 1e7
+    time_horizon: 512
+    summary_freq: 10000
+    threaded: true
