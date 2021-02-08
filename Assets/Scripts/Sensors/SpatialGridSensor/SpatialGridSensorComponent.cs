@@ -24,7 +24,7 @@ namespace MBaske.Sensors
         /// The number of stacked observations. Enable stacking (value > 1) 
         /// if the agent needs to infer movement from observations.
         /// </summary>
-        public int ObservationStackSie
+        public int ObservationStackSize
         {
             get { return m_ObservationStackSize; }
             set { m_ObservationStackSize = value; UpdateSensor(); }
@@ -242,7 +242,7 @@ namespace MBaske.Sensors
             set { m_DistanceNormalization = value; UpdateSensor(); }
         }
         [SerializeField, HideInInspector]
-        [Tooltip("How to normalize distances values. Use Weighted if observing distance changes at close range is more critical than further away.")]
+        [Tooltip("How to normalize distances values. Use Weighted if observing distance changes at close range is more critical to the agent than what happens farther away.")]
         protected DistanceNormalization m_DistanceNormalization;
 
         /// <summary>

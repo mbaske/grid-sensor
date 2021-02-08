@@ -8,7 +8,7 @@ namespace MBaske.Driver
         public Transform FirstChunkTF => m_Chunks.Peek().transform;
 
         [SerializeField]
-        private int numChunks = 20;
+        private int m_NumChunks = 20;
 
         [SerializeField]
         private ReferenceFrame m_Frame;
@@ -17,7 +17,7 @@ namespace MBaske.Driver
 
         public void Initialize()
         {
-            m_Chunks = new Queue<RoadChunk>(numChunks);
+            m_Chunks = new Queue<RoadChunk>(m_NumChunks);
             m_Pool = FindObjectOfType<RoadChunkPool>();
         }
 
@@ -29,7 +29,7 @@ namespace MBaske.Driver
             {
                 m_Chunks.Dequeue().Discard();
             }
-            while (m_Chunks.Count < numChunks)
+            while (m_Chunks.Count < m_NumChunks)
             {
                 EnqueuNewChunk();
             }
