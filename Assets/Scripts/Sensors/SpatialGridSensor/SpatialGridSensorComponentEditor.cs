@@ -375,7 +375,8 @@ namespace MBaske.Sensors
             GL.PushMatrix();
             GL.MultMatrix(m_Comp.transform.localToWorldMatrix);
 
-            Vector3 fwd = Vector3.forward * m_Comp.MaxDistance;
+            Vector3 min = Vector3.forward * m_Comp.MinDistance;
+            Vector3 max = Vector3.forward * m_Comp.MaxDistance;
 
             // Grid Cells
 
@@ -386,7 +387,7 @@ namespace MBaske.Sensors
 
                 for (int iLon = 0; iLon <= nLon; iLon++)
                 {
-                    var v = wf[iLat, iLon] * fwd;
+                    var v = wf[iLat, iLon] * max;
                     GL.Vertex3(v.x, v.y, v.z);
                 }
                 GL.End();
@@ -399,7 +400,7 @@ namespace MBaske.Sensors
 
                 for (int iLat = 0; iLat <= nLat; iLat++)
                 {
-                    var v = wf[iLat, iLon] * fwd;
+                    var v = wf[iLat, iLon] * max;
                     GL.Vertex3(v.x, v.y, v.z);
                 }
                 GL.End();
@@ -414,9 +415,10 @@ namespace MBaske.Sensors
 
                 for (int iLon = 0; iLon <= nLon; iLon++)
                 {
-                    var v = wf[0, iLon] * fwd;
-                    GL.Vertex3(v.x, v.y, v.z);
-                    GL.Vertex3(0, 0, 0);
+                    var a = wf[0, iLon] * min;
+                    GL.Vertex3(a.x, a.y, a.z);
+                    var b = wf[0, iLon] * max;
+                    GL.Vertex3(b.x, b.y, b.z);
                 }
                 GL.End();
             }
@@ -428,9 +430,10 @@ namespace MBaske.Sensors
 
                 for (int iLon = 0; iLon <= nLon; iLon++)
                 {
-                    var v = wf[nLat, iLon] * fwd;
-                    GL.Vertex3(v.x, v.y, v.z);
-                    GL.Vertex3(0, 0, 0);
+                    var a = wf[nLat, iLon] * min;
+                    GL.Vertex3(a.x, a.y, a.z);
+                    var b = wf[nLat, iLon] * max;
+                    GL.Vertex3(b.x, b.y, b.z);
                 }
                 GL.End();
             }
@@ -444,9 +447,10 @@ namespace MBaske.Sensors
 
                     for (int iLat = 0; iLat <= nLat; iLat++)
                     {
-                        var v = wf[iLat, iLon] * fwd;
-                        GL.Vertex3(v.x, v.y, v.z);
-                        GL.Vertex3(0, 0, 0);
+                        var a = wf[iLat, iLon] * min;
+                        GL.Vertex3(a.x, a.y, a.z);
+                        var b = wf[iLat, iLon] * max;
+                        GL.Vertex3(b.x, b.y, b.z);
                     }
                     GL.End();
                 }
