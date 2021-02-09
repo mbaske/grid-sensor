@@ -88,16 +88,16 @@ namespace MBaske.Driver
                         if (x == z)
                         {
                             // Single roadblock.
-                            m_Obstacles.Push(m_Pool.Spawn(0, OnstacleSpawnPos(tf, x * side), tf.rotation));
+                            m_Obstacles.Push(m_Pool.Spawn(0, ObstacleSpawnPos(tf, x * side), tf.rotation));
                         }
                         break;
                     case ObstacleType.Barrel:
                         x = (c_Length - z) * side;
-                        m_Obstacles.Push(m_Pool.Spawn(1, OnstacleSpawnPos(tf, x), tf.rotation));
+                        m_Obstacles.Push(m_Pool.Spawn(1, ObstacleSpawnPos(tf, x), tf.rotation));
                         break;
                     case ObstacleType.Cone:
                         x = (c_Length - z) * side;
-                        m_Obstacles.Push(m_Pool.Spawn(2, OnstacleSpawnPos(tf, x), tf.rotation));
+                        m_Obstacles.Push(m_Pool.Spawn(2, ObstacleSpawnPos(tf, x), tf.rotation));
                         break;
                 }
             }
@@ -110,7 +110,7 @@ namespace MBaske.Driver
             m_MeshCollider.sharedMesh = m_Mesh;
         }
 
-        private Vector3 OnstacleSpawnPos(Transform tf, int x)
+        private Vector3 ObstacleSpawnPos(Transform tf, int x)
         {
             return tf.position + tf.right * x * s_ObstacleXSpacing;
         }
