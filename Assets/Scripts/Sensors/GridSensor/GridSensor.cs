@@ -53,6 +53,26 @@ namespace MBaske.Sensors
         }
         protected SensorCompressionType m_Compression;
 
+        /// <summary>
+        /// Optional detector to use for the sensor.
+        /// </summary>
+        public Detector Detector
+        {
+            get { return m_Detector; }
+            set { m_Detector = value; }
+        }
+        protected Detector m_Detector;
+
+        /// <summary>
+        /// Optional encoder to use for the sensor.
+        /// </summary>
+        public Encoder Encoder
+        {
+            get { return m_Encoder; }
+            set { m_Encoder = value; }
+        }
+        protected Encoder m_Encoder;
+
 
         protected GridShape m_Shape;
         // PNG compression.
@@ -136,6 +156,7 @@ namespace MBaske.Sensors
         /// <inheritdoc/>
         public virtual void Update() 
         {
+            m_Encoder?.Encode(m_Detector.Update());
             UpdateEvent?.Invoke();
         }
 
@@ -143,6 +164,8 @@ namespace MBaske.Sensors
         public virtual void Reset() 
         {
             m_PixelGrid.Clear();
+            m_Detector?.Reset();
+            m_Encoder?.Reset();
             ResetEvent?.Invoke();
         }
     }

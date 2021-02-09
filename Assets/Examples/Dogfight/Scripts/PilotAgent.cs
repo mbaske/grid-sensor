@@ -126,23 +126,24 @@ namespace MBaske.Dogfight
 
             if (m_FrontSensor.HasDetectionResult(out DetectionResult result))
             {
-                var items = result.GetItems(m_Ship.tag);
+                var list = result.GetDetectionDataList(m_Ship.tag);
 
-                if (items.Count > 0)
+                if (list.Count > 0)
                 {
                     float maxWeight = 0;
-                    var target = items[0];
+                    var target = list[0];
 
-                    foreach (var item in items)
+                    foreach (var item in list)
                     {
-                        float weight = GetTargetWeight(shipPos, shipFwd, item.Position, out bool hasLock);
+                        var pos = ((DetectedCollider)item.AdditionalDetectionData).Position;
+                        float weight = GetTargetWeight(shipPos, shipFwd, pos, out bool hasLock);
 
                         if (weight > maxWeight)
                         {
                             target = item;
                             maxWeight = weight;
                             hasLockAny = hasLockAny || hasLock;
-                            targetPos = hasLock ? item.Position : targetPos;
+                            targetPos = hasLock ? pos : targetPos;
                         }
                     }
 
@@ -151,7 +152,8 @@ namespace MBaske.Dogfight
                         // Reward agent for following opponent.
                         AddReward(maxWeight * 2); // TODO factor, prevent zero-sum necessary?
                         // Penalize opponent for being followed.
-                        target.Collider.GetComponentInParent<PilotAgent>().AddReward(-maxWeight);
+                        ((DetectedCollider)target.AdditionalDetectionData).Collider.
+                            GetComponentInParent<PilotAgent>().AddReward(-maxWeight);
 
                         m_TargetingCount++;
                     }

@@ -69,14 +69,14 @@ namespace MBaske.Sensors
         ///   single channel for the shortest measured distance, regardless of 
         ///   the tag.
         /// </summary>
-        public ChannelEncoding ChannelEncoding
+        public ColliderEncodingType ChannelEncoding
         {
             get { return m_ChannelEncoding; }
             set { m_ChannelEncoding = value; UpdateSensor(); }
         }
         [SerializeField, HideInInspector]
         [Tooltip("How to encode detection results as grid values.")]
-        protected ChannelEncoding m_ChannelEncoding;
+        protected ColliderEncodingType m_ChannelEncoding;
 
         /// <summary>
         /// What to detect about a collider.
@@ -321,7 +321,7 @@ namespace MBaske.Sensors
         // and therefore implements IPixelGridProvider.
         protected PixelGrid m_Grid;
 
-        protected IColliderDetector NewDetector() 
+        protected Detector NewDetector() 
             => new ColliderDetector(
             transform,
             m_BufferSize,
@@ -337,8 +337,8 @@ namespace MBaske.Sensors
             m_ScanExtent,
             m_ClearCacheOnReset);
 
-        protected IGridEncoder NewEncoder() 
-            => new GridEncoder(
+        protected Encoder NewEncoder() 
+            => new ColliderEncoder(
             GetPixelGrid(),
             m_ChannelEncoding,
             DistinctTags,
@@ -348,13 +348,9 @@ namespace MBaske.Sensors
 
         public override ISensor CreateSensor()
         {
-            Sensor = new SpatialGridSensor(
-                NewDetector(),
-                NewEncoder(),
-                GetPixelGrid(), 
-                m_CompressionType, 
-                m_SensorName);
-
+            base.CreateSensor();
+            Sensor.Detector = NewDetector();
+            Sensor.Encoder = NewEncoder();
             return Sensor;
         }
 
@@ -367,8 +363,8 @@ namespace MBaske.Sensors
             {
                 m_Grid = NewGrid();
                 base.UpdateSensor();
-                ((SpatialGridSensor)Sensor).Detector = NewDetector();
-                ((SpatialGridSensor)Sensor).Encoder = NewEncoder();
+                Sensor.Detector = NewDetector();
+                Sensor.Encoder = NewEncoder();
             }
         }
 
@@ -384,11 +380,11 @@ namespace MBaske.Sensors
 
             switch (m_ChannelEncoding)
             {
-                case ChannelEncoding.OneHotAndShortestDistance:
+                case ColliderEncodingType.OneHotAndShortestDistance:
                     channels++;
                     break;
 
-                case ChannelEncoding.OneHotAndDistances:
+                case ColliderEncodingType.OneHotAndDistances:
                     channels *= 2;
                     break;
             }
@@ -401,7 +397,7 @@ namespace MBaske.Sensors
         {
             if (Sensor != null)
             {
-                result = ((SpatialGridSensor)Sensor).Detector.Result;
+                result = Sensor.Detector.Result;
                 return true;
             }
 
@@ -413,7 +409,7 @@ namespace MBaske.Sensors
         {
             if (Sensor != null)
             {
-                stats = ((SpatialGridSensor)Sensor).Detector.Stats();
+                stats = Sensor.Detector.Stats();
                 return true;
             }
 

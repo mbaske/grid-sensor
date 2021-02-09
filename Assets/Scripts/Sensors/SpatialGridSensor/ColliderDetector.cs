@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using MBaske.Sensors.Util;
 
@@ -15,12 +14,10 @@ namespace MBaske.Sensors
         Linear, Weighted
     }
 
-    public interface IColliderDetector
+    public struct DetectedCollider : IAdditionalDetectionData
     {
-        DetectionResult Update();
-        DetectionResult Result { get; }
-        void Reset();
-        string Stats();
+        public Vector3 Position; // world
+        public Collider Collider;
     }
 
     /// <summary>
@@ -28,14 +25,11 @@ namespace MBaske.Sensors
     /// and tags within the sensor's field of view.
     /// Generates a <see cref="DetectionResult"/>.
     /// </summary>
-    public class ColliderDetector : IColliderDetector
+    public class ColliderDetector : Detector
     {
-        public DetectionResult Result { get; private set; }
-
         private readonly Collider[] m_Buffer;
         private readonly Transform m_ReferenceFrame;
         private readonly int m_LayerMask;
-        private readonly List<string> m_Tags;
         private readonly Rect m_LonLatRect;
         private readonly float m_MinDistance;
         private readonly float m_MinDistanceSqr;
@@ -55,7 +49,7 @@ namespace MBaske.Sensors
         private int m_TotalPointCount;
         private int m_VisiblePointCount;
 
-        public string Stats() => string.Format(
+        public override string Stats() => string.Format(
             "{0} of {1} points in {2} colliders", 
             m_VisiblePointCount, m_TotalPointCount, m_ColliderCount);
 
@@ -80,11 +74,11 @@ namespace MBaske.Sensors
             float scanResolution,
             float scanExtent,
             bool clearCache)
+            : base(tags)
         {
             m_ReferenceFrame = referenceFrame;
             m_Buffer = new Collider[bufferSize];
             m_LayerMask = layerMask;
-            m_Tags = tags.ToList();
             m_LonLatRect = lonLatRect;
 
             m_MinDistance = minDistance;
@@ -102,7 +96,6 @@ namespace MBaske.Sensors
             m_ScanExtent = scanExtent;
             m_ClearCache = clearCache;
 
-            Result = new DetectionResult(m_Tags);
             s_SharedColliderShapeCache.Clear();
         }
 
@@ -110,7 +103,7 @@ namespace MBaske.Sensors
         /// Resets the detector. 
         /// Optionally clears the collider shape cache.
         /// </summary>
-        public void Reset()
+        public override void Reset()
         {
             if (m_ClearCache)
             {
@@ -122,7 +115,7 @@ namespace MBaske.Sensors
         /// Searches for colliders and calulates their FOV coordinates.
         /// <returns>An updated <see cref="DetectionResult"/>.</returns>
         /// </summary>
-        public DetectionResult Update()
+        public override DetectionResult Update()
         {
             Result.Clear();
 
@@ -158,13 +151,17 @@ namespace MBaske.Sensors
                 ? cld.ClosestPoint(center)
                 : cld.transform.position;
 
-            if (IsVisiblePoint(center, pos, out Vector4 coord))
+            if (IsVisiblePoint(center, pos, out NormalizedPoint point))
             {
-                var item = Result.NewItem();
-                item.Position = pos;
-                item.Collider = cld;
-                item.Add(coord);
-                Result.AddItem(item);
+                var item = Result.NewDetectionDataItem();
+                item.AdditionalDetectionData = new DetectedCollider
+                {
+                    Position = pos,
+                    Collider = cld
+                };
+                item.Tag = cld.tag;
+                item.AddPoint(point);
+                Result.AddDetectionDataItem(item);
                 m_VisiblePointCount++;
             }
             m_TotalPointCount++;
@@ -174,15 +171,19 @@ namespace MBaske.Sensors
         {
             var pos = cld.ClosestPoint(center);
 
-            if (IsVisiblePoint(center, pos, out Vector4 coord))
+            if (IsVisiblePoint(center, pos, out NormalizedPoint point))
             {
                 // Should always be true. We want at least the
                 // closest point's coords, even if all scanned 
                 // points happen to be outside the field of view.
-                var item = Result.NewItem();
-                item.Position = pos;
-                item.Collider = cld;
-                item.Add(coord); // closest
+                var item = Result.NewDetectionDataItem();
+                item.AdditionalDetectionData = new DetectedCollider
+                {
+                    Position = pos,
+                    Collider = cld
+                };
+                item.Tag = cld.tag;
+                item.AddPoint(point);
                 m_VisiblePointCount++;
                 m_TotalPointCount++;
 
@@ -193,61 +194,45 @@ namespace MBaske.Sensors
                     s_SharedColliderShapeCache.Add(cld, shape);
                 }
 
-                var points = shape.GetWorldPoints();
-                foreach (Vector3 point in points)
+                var shapePoints = shape.GetWorldPoints();
+                foreach (Vector3 p in shapePoints)
                 {
-                    if (IsVisiblePoint(center, point, out coord))
+                    if (IsVisiblePoint(center, p, out point))
                     {
-                        item.Add(coord); // shape
+                        item.AddPoint(point);
                         m_VisiblePointCount++;
                     }
                 }
-                Result.AddItem(item);
+                Result.AddDetectionDataItem(item);
                 m_TotalPointCount += shape.NumPoints;
             }
         }
 
-        private bool IsVisiblePoint(Vector3 center, Vector3 point, out Vector4 coord)
+        private bool IsVisiblePoint(Vector3 center, Vector3 pos, out NormalizedPoint point)
         {
-            var delta = point - center;
+            var delta = pos - center;
             var sqrMag = delta.sqrMagnitude;
 
             if (sqrMag >= m_MinDistanceSqr && sqrMag <= m_MaxDistanceSqr)
             {
-                var lonLat = GetLonLat(delta);
+                var lonLat = Geometry.GetLonLat(m_ReferenceFrame, delta);
                 if (m_LonLatRect.Contains(lonLat))
                 {
                     float d = Mathf.Sqrt(sqrMag) - m_MinDistance; // > 0
                     // lon/lat -> norm. x/y
-                    coord = Rect.PointToNormalized(m_LonLatRect, lonLat);
-                    coord.z = d / m_DistanceRange;
-                    coord.z = m_ApplyWeight
-                        ? Normalization.InvSigmoid(coord.z, m_NormalizationWeight)
-                        : 1 - coord.z; // 0 at max, 1 at min distance
-                    coord.w = m_DistanceRange / d; // 1 at max distance
+                    point.Position = Rect.PointToNormalized(m_LonLatRect, lonLat);
+                    point.Position.z = d / m_DistanceRange;
+                    point.Position.z = m_ApplyWeight
+                        ? Normalization.InvSigmoid(point.Position.z, m_NormalizationWeight)
+                        : 1 - point.Position.z; // 0 at max, 1 at min distance
+                    point.DistanceRatio = m_DistanceRange / d; // 1 at max distance
 
                     return true;
                 }
             }
 
-            coord = default;
+            point = default;
             return false;
-        }
-
-        private Vector2 GetLonLat(Vector3 delta)
-        {
-            var up = m_ReferenceFrame.up;
-            var proj = Vector3.ProjectOnPlane(delta, up);
-            var perp = Vector3.Cross(proj, up);
-
-            var lonLat = new Vector2(
-                Vector3.SignedAngle(m_ReferenceFrame.forward, proj, up),
-                Vector3.SignedAngle(proj, delta, perp));
-
-            lonLat.x = lonLat.x == 180 ? -180 : lonLat.x;
-            lonLat.y = lonLat.y == 180 ? -180 : lonLat.y;
-
-            return lonLat;
         }
     }
 }
