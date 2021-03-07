@@ -142,7 +142,7 @@ Custom observations implemented this way are being added to the observations lis
 ![Custom Observations List](Images/custom_obs_added.png)
 
 
- Like the other tagged settings, the observations list is associated with a sensor instance. If your agent uses multiple sensors, those can observe different aspects of the same object type. For instance, a long range sensor might just need to detect a spaceship's position, while a short range sensor also has to observe its shield strength and the ship's shape. Just select the appropriate options and edit the observations list for customizing a sensor instance.  
+ Like the other tagged settings, observation lists are associated with a sensor instance. If your agent uses multiple sensors, those can observe different aspects of the same object type. For instance, a long range sensor might just need to detect a spaceship's position, while a short range sensor also has to observe its shield strength and the ship's shape. Just select the appropriate options and edit the observations list for customizing a sensor instance.  
 
 Since object settings are tag specific, it is expected that custom observations for a particular tag are consistent. Don't create multiple DetectableGameObject subclasses for different gameobjects sharing the same tag. If objects are distinct with regard to their observable values, then they should have distinct tags.   
 
@@ -155,7 +155,7 @@ GridSensorComponent3D (spatial) and GridSensorComponent2D (plane) share the foll
 
 ### Sensor Name
 
-The name of the sensor instance.
+The name of the sensor.
 
 ### Compression Type
 
@@ -254,8 +254,8 @@ Detection offset from sensor transform position.
 Comparing it to my 2D sensor variant, here are the advantages of each sensor the way I see them:
 * The Eidos sensor is easier to set up. Unless you want custom observable values, objects don't need any particular scripts attached for being detectable. 
 * Its Gizmo drawing is more informative than that of my sensor, insofar as it directly visualizes how object detection translates to grid cells in scene view. Since detection and encoding are conceptually separate runtime processes for my sensor, you'll need to use the [GridSensorGUI](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorGUI.cs) component for displaying its grid output.
-* My sensor is considerably faster for large or multiple grids. This is because of the allocating overlap calls the Eidos sensor does for every cell - they add up. In contrast, my sensor performs a single non-allocating overlap call per update step, loops through the detected colliders, retrieves their associated points and transforms them into the sensor's frame of reference. An A/B comparison using the [Food Collector Environment](https://github.com/Unity-Technologies/ml-agents/blob/main/docs/Learning-Environment-Examples.md#food-collector) showed that CPU  training time can be reduced by one third using my sensor (running eight executables). In-editor Burst inference produced 2x to 3x higher framerates.
-* Custom observations can be added easily with my sensor as [described above](#Custom-Observations). Although Eidos' sensor supports custom values too, they aren't as comfortable to implement, since that requires extending the sensor's GetObjectData method as well as providing values on gameobjects themselves.
+* My sensor is considerably faster for large or multiple grids. This is because of the allocating overlap calls the Eidos sensor does for every cell - they add up. In contrast, my sensor performs a single non-allocating overlap call per update step, loops through the detected colliders, retrieves their associated points and transforms them into the sensor's frame of reference. An A/B comparison in the [Food Collector Environment](https://github.com/Unity-Technologies/ml-agents/blob/main/docs/Learning-Environment-Examples.md#food-collector) showed that CPU training time can be reduced by one third using my sensor (running eight executables). In-editor Burst inference produced 2x to 3x higher framerates.
+* Custom observations can be added easily with my sensor as [described above](#Custom-Observations). Although Eidos' sensor supports custom values too, they aren't as comfortable to implement, since that requires extending the sensor's [GetObjectData](https://github.com/Unity-Technologies/ml-agents/blob/main/com.unity.ml-agents.extensions/Runtime/Sensors/GridSensor.cs#L669) method as well as providing values on gameobjects themselves.
 * Tags and layer masks are handled automatically by my sensor. Detectable tags are set as string literals for Eidos' sensor, which is more prone to errors.
 
 Obviously, this is just my subjective take on the matter. You might find other things you like or dislike about the sensors.
