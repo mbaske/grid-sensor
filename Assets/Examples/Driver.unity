@@ -382,79 +382,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1757904791 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 276441552782577542, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
-  m_PrefabInstance: {fileID: 713468376}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1757904793 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6125361949842502244, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
-  m_PrefabInstance: {fileID: 713468376}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1757904791}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f0fba8a51f9b844eb0c49ad84d31c41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1757904794
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1757904791}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: babf2ed069045764a801fe3aa69a88a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PixelGridProvider: {fileID: 1757904793}
-  m_Magnify: 3
-  m_Spacing: 0
-  m_Offset: {x: 0, y: 0}
-  m_Label: LongRangeSensor
-  m_Margins: {x: 3, y: 1}
 --- !u!4 &1904622525 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5629454171956883635, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
   m_PrefabInstance: {fileID: 713468376}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1909161502 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4253415920262107674, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
-  m_PrefabInstance: {fileID: 713468376}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1909161504 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4429734726027716596, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
-  m_PrefabInstance: {fileID: 713468376}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1909161502}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05c5a591fb9e9ff448870f68cf59e60f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1909161505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1909161502}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: babf2ed069045764a801fe3aa69a88a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PixelGridProvider: {fileID: 1909161504}
-  m_Magnify: 2
-  m_Spacing: 2
-  m_Offset: {x: 0, y: 122}
-  m_Label: 2D Sensor
-  m_Margins: {x: 3, y: 1}
 --- !u!1001 &5594173243655174303
 PrefabInstance:
   m_ObjectHideFlags: 0
