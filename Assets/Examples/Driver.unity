@@ -123,6 +123,40 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &62792275 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2782905965284015992, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
+  m_PrefabInstance: {fileID: 713468376}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &62792277 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1278754472484724357, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
+  m_PrefabInstance: {fileID: 713468376}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 62792275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c5a591fb9e9ff448870f68cf59e60f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &62792278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 62792275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: babf2ed069045764a801fe3aa69a88a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PixelGridProvider: {fileID: 62792277}
+  m_Magnify: 2
+  m_Spacing: 2
+  m_Offset: {x: 0, y: 122}
+  m_Label: 2D Sensor
+  m_Margins: {x: 3, y: 1}
 --- !u!1 &581309937
 GameObject:
   m_ObjectHideFlags: 0
@@ -277,6 +311,40 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
+--- !u!1 &1126728868 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6228205684310726352, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
+  m_PrefabInstance: {fileID: 713468376}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1126728870 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1201679387550873157, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
+  m_PrefabInstance: {fileID: 713468376}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126728868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f0fba8a51f9b844eb0c49ad84d31c41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1126728871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126728868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: babf2ed069045764a801fe3aa69a88a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PixelGridProvider: {fileID: 1126728870}
+  m_Magnify: 3
+  m_Spacing: 2
+  m_Offset: {x: 0, y: 0}
+  m_Label: 3D Sensor
+  m_Margins: {x: 3, y: 1}
 --- !u!1 &1193621755
 GameObject:
   m_ObjectHideFlags: 0
@@ -308,7 +376,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 152b8efdd6256c64fb3ad77cd3b294e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 1873037496}
+  target: {fileID: 1904622525}
   distance: 20
   height: 10
   rotationDamping: 1
@@ -378,77 +446,9 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1591379736 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1667842126385314912, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
-  m_PrefabInstance: {fileID: 713468376}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1591379738 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2307126972705512861, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
-  m_PrefabInstance: {fileID: 713468376}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1591379736}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05c5a591fb9e9ff448870f68cf59e60f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1591379739
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1591379736}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: babf2ed069045764a801fe3aa69a88a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PixelGridProvider: {fileID: 1591379738}
-  m_Magnify: 3
-  m_Spacing: 2
-  m_Offset: {x: 0, y: 162}
-  m_Label: 2D Sensor
-  m_Margins: {x: 3, y: 1}
---- !u!1 &1797437818 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7481758514731914696, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
-  m_PrefabInstance: {fileID: 713468376}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1797437820 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2384298256215684445, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
-  m_PrefabInstance: {fileID: 713468376}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1797437818}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f0fba8a51f9b844eb0c49ad84d31c41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1797437821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1797437818}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: babf2ed069045764a801fe3aa69a88a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PixelGridProvider: {fileID: 1797437820}
-  m_Magnify: 4
-  m_Spacing: 2
-  m_Offset: {x: 0, y: 0}
-  m_Label: 3D Sensor
-  m_Margins: {x: 3, y: 1}
---- !u!4 &1873037496 stripped
+--- !u!4 &1904622525 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 9197569894833845163, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
+  m_CorrespondingSourceObject: {fileID: 5629454171956883635, guid: a932c1576bbf8294a9013d54d48c7be4, type: 3}
   m_PrefabInstance: {fileID: 713468376}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5594173243655174303
