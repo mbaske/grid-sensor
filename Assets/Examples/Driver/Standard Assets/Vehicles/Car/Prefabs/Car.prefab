@@ -6614,6 +6614,8 @@ Transform:
   - {fileID: 400002}
   - {fileID: 400000}
   - {fileID: 400056}
+  - {fileID: 7219794713755901104}
+  - {fileID: 3406270812553291921}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6645,6 +6647,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ea65b38d485c374caa584a03f1de571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_EnableFX: 0
   m_CarDriveType: 2
   m_WheelColliders:
   - {fileID: 14600006}
@@ -6674,7 +6677,6 @@ MonoBehaviour:
   m_RevRangeBoundary: 1
   m_SlipLimit: 0.3
   m_BrakeTorque: 20000
-  m_EnableFX: 0
 --- !u!114 &11400022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7313,3 +7315,173 @@ Transform:
   m_Father: {fileID: 400000}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1761152284881485009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7219794713755901104}
+  - component: {fileID: 6823779954714631236}
+  m_Layer: 0
+  m_Name: LongRangeSensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7219794713755901104
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761152284881485009}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 400050}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6823779954714631236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761152284881485009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f0fba8a51f9b844eb0c49ad84d31c41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ObservationShape: 40 (height) x 80 (width) x 2 (channels)
+  m_SensorName: LongRangeSensor
+  m_CompressionType: 1
+  m_StackedObservations: 1
+  m_ColliderBufferSize: 512
+  m_ClearCacheOnReset: 1
+  m_AddDetectableObject: {fileID: 0}
+  m_Detectables:
+    m_SettingsByTag:
+    - Tag: Pole
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 3
+      Detectable: {fileID: 3234406078400329043, guid: 8ec0658eb3f848a46954a5965234840f, type: 3}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList: []
+    - Tag: Obstacle
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 3
+      Detectable: {fileID: -3669023585210675956, guid: 81f933bb037212f468c9648f2ac07ef6, type: 3}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList: []
+  m_GridSize: {x: 80, y: 40}
+  m_SensorResolution: 1,09 meters (0,50 deg at 125,00 meters)
+  m_CellArc: 0.5
+  m_LatAngleNorth: 10
+  m_LatAngleSouth: 10
+  m_LonAngle: 20
+  m_MinDistance: 0
+  m_MaxDistance: 125
+  m_Normalization:
+    Value: 0.75
+    Weighted: 1
+  m_LonLatRect:
+    serializedVersion: 2
+    x: -20
+    y: -10
+    width: 40
+    height: 20
+  m_GridResolution: 1.0908308
+--- !u!1 &7530309420987913593
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3406270812553291921}
+  - component: {fileID: 6890748036657869956}
+  m_Layer: 0
+  m_Name: ShortRangeSensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3406270812553291921
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7530309420987913593}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 400050}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6890748036657869956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7530309420987913593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c5a591fb9e9ff448870f68cf59e60f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ObservationShape: 80 (height) x 60 (width) x 2 (channels)
+  m_SensorName: ShortRangeSensor
+  m_CompressionType: 1
+  m_StackedObservations: 1
+  m_ColliderBufferSize: 64
+  m_ClearCacheOnReset: 1
+  m_AddDetectableObject: {fileID: 0}
+  m_Detectables:
+    m_SettingsByTag:
+    - Tag: Pole
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 0
+      Detectable: {fileID: 3234406078400329043, guid: 8ec0658eb3f848a46954a5965234840f, type: 3}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList:
+      - One-Hot
+    - Tag: Obstacle
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 3
+      Detectable: {fileID: -3669023585210675956, guid: 81f933bb037212f468c9648f2ac07ef6, type: 3}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList:
+      - One-Hot
+  m_GridSize: {x: 60, y: 80}
+  m_Rotate: 1
+  m_EditorBounds:
+    m_Center: {x: 0, y: 0, z: 5}
+    m_Extent: {x: 7.5, y: 2.5, z: 10}
+  m_DetectionBounds:
+    m_Center: {x: 0, y: 0, z: 5}
+    m_Extent: {x: 7.5, y: 2.5, z: 10}
+  m_CellSize: 0.25
+  m_TmpCellSize: 0.25
+  m_NumCells: {x: 60, y: 1, z: 80}
+  m_DetectionSize: {x: 15, y: 5, z: 20}
+  m_BoundsSize: {x: 15, y: 5, z: 20}
+  m_Offset: {x: 0, y: 0, z: 5}
