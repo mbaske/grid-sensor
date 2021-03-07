@@ -1,5 +1,91 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &276441552782577542
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6341291449993498049}
+  - component: {fileID: 6125361949842502244}
+  m_Layer: 0
+  m_Name: LongRangeSensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6341291449993498049
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276441552782577542}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5629454171956883635}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6125361949842502244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276441552782577542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f0fba8a51f9b844eb0c49ad84d31c41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ObservationShape: 40 (height) x 80 (width) x 2 (channels)
+  m_SensorName: LongRangeSensor
+  m_CompressionType: 1
+  m_StackedObservations: 1
+  m_ColliderBufferSize: 512
+  m_ClearCacheOnReset: 1
+  m_AddDetectableObject: {fileID: 0}
+  m_Detectables:
+    m_SettingsByTag:
+    - Tag: Pole
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 3
+      Detectable: {fileID: 3234406078400329043, guid: 8ec0658eb3f848a46954a5965234840f, type: 3}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList: []
+    - Tag: Obstacle
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 3
+      Detectable: {fileID: -3669023585210675956, guid: 81f933bb037212f468c9648f2ac07ef6, type: 3}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList: []
+  m_GridSize: {x: 80, y: 40}
+  m_SensorResolution: 1,09 meters (0,50 deg at 125,00 meters)
+  m_CellArc: 0.5
+  m_LatAngleNorth: 10
+  m_LatAngleSouth: 10
+  m_LonAngle: 20
+  m_MinDistance: 0
+  m_MaxDistance: 125
+  m_Normalization:
+    Value: 0.75
+    Weighted: 1
+  m_LonLatRect:
+    serializedVersion: 2
+    x: -20
+    y: -10
+    width: 40
+    height: 20
+  m_GridResolution: 1.0908308
 --- !u!1 &519996281595981362
 GameObject:
   m_ObjectHideFlags: 0
@@ -59,7 +145,7 @@ MonoBehaviour:
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 0}
-  m_InferenceDevice: 0
+  m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: Driver
   TeamId: 0
@@ -98,6 +184,90 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DecisionPeriod: 3
   TakeActionsBetweenDecisions: 1
+--- !u!1 &4253415920262107674
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3003580176440559170}
+  - component: {fileID: 4429734726027716596}
+  m_Layer: 0
+  m_Name: ShortRangeSensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3003580176440559170
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4253415920262107674}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5629454171956883635}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4429734726027716596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4253415920262107674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c5a591fb9e9ff448870f68cf59e60f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ObservationShape: 80 (height) x 60 (width) x 2 (channels)
+  m_SensorName: ShortRangeSensor
+  m_CompressionType: 1
+  m_StackedObservations: 1
+  m_ColliderBufferSize: 64
+  m_ClearCacheOnReset: 1
+  m_AddDetectableObject: {fileID: 0}
+  m_Detectables:
+    m_SettingsByTag:
+    - Tag: Pole
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 0
+      Detectable: {fileID: 3234406078400329043, guid: 8ec0658eb3f848a46954a5965234840f, type: 3}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList:
+      - One-Hot
+    - Tag: Obstacle
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 3
+      Detectable: {fileID: -3669023585210675956, guid: 81f933bb037212f468c9648f2ac07ef6, type: 3}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList:
+      - One-Hot
+  m_GridSize: {x: 60, y: 80}
+  m_Rotate: 1
+  m_EditorBounds:
+    m_Center: {x: 0, y: 0, z: 5}
+    m_Extent: {x: 7.5, y: 2.5, z: 10}
+  m_DetectionBounds:
+    m_Center: {x: 0, y: 0, z: 5}
+    m_Extent: {x: 7.5, y: 2.5, z: 10}
+  m_CellSize: 0.25
+  m_TmpCellSize: 0.25
+  m_NumCells: {x: 60, y: 1, z: 80}
+  m_DetectionSize: {x: 15, y: 5, z: 20}
+  m_BoundsSize: {x: 15, y: 5, z: 20}
+  m_Offset: {x: 0, y: 0, z: 5}
 --- !u!1001 &4854882627941303024
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -229,106 +399,6 @@ PrefabInstance:
     - target: {fileID: 400050, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_ObservationShape
-      value: 40 (height) x 80 (width) x 2 (channels)
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].Tag
-      value: Pole
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].Tag
-      value: Obstacle
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].Detectable
-      value: 
-      objectReference: {fileID: 3234406078400329043, guid: 8ec0658eb3f848a46954a5965234840f, type: 3}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].Detectable
-      value: 
-      objectReference: {fileID: -3669023585210675956, guid: 81f933bb037212f468c9648f2ac07ef6, type: 3}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].DetectionType
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].ShapeModifier
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].m_AllObservations.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6823779954714631236, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].m_AllObservations.Array.data[0]
-      value: One-Hot
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_ObservationShape
-      value: 80 (height) x 60 (width) x 2 (channels)
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].Tag
-      value: Pole
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].Tag
-      value: Obstacle
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].Detectable
-      value: 
-      objectReference: {fileID: 3234406078400329043, guid: 8ec0658eb3f848a46954a5965234840f, type: 3}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].Detectable
-      value: 
-      objectReference: {fileID: -3669023585210675956, guid: 81f933bb037212f468c9648f2ac07ef6, type: 3}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].ShapeModifier
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].DetectionType
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].ShapeModifier
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].m_AllObservations.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].m_ObservationsList.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].m_AllObservations.Array.data[0]
-      value: One-Hot
-      objectReference: {fileID: 0}
-    - target: {fileID: 6890748036657869956, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
-      propertyPath: m_Detectables.m_SettingsByTag.Array.data[1].m_ObservationsList.Array.data[0]
-      value: One-Hot
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0e7ee4df08df88c4880f43398f9ad2c2, type: 3}
