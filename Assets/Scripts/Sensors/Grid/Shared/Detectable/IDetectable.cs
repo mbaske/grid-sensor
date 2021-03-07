@@ -2,7 +2,7 @@
 namespace MBaske.Sensors.Grid
 {
     /// <summary>
-    /// Interface foor detectable objects.
+    /// Interface for detectable objects.
     /// </summary>
     public interface IDetectable
     {
