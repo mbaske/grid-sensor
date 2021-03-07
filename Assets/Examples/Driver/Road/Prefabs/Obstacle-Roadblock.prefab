@@ -81,63 +81,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &5919424209398137884
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4126421201245498307}
-  - component: {fileID: 3008024701371135609}
-  - component: {fileID: 2567733534960245726}
-  m_Layer: 6
-  m_Name: Tagged
-  m_TagString: Obstacle
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4126421201245498307
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5919424209398137884}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 7419886774286829736}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &3008024701371135609
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5919424209398137884}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 2.5, y: 1, z: 0.4}
-  m_Center: {x: 0, y: 0.75, z: 0}
---- !u!114 &2567733534960245726
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5919424209398137884}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1c1adc1115c6064f83fb7c9fe96d791, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7419886774286829741
 GameObject:
   m_ObjectHideFlags: 0
@@ -147,12 +90,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7419886774286829736}
+  - component: {fileID: -8845131437949811976}
   - component: {fileID: 2028093372630314451}
   - component: {fileID: 7419886774286829739}
   - component: {fileID: 7419886774286829738}
+  - component: {fileID: 6910687002104297614}
   m_Layer: 6
   m_Name: Obstacle-Roadblock
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -169,10 +114,59 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5318869562539996113}
-  - {fileID: 4126421201245498307}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-8845131437949811976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7419886774286829741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c191b328ab2d5344a21508d5344fab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AddOneHotObservation: 1
+  m_Shape:
+    m_ScanResult:
+    - LocalPoints:
+      - {x: -1.05, y: 0.275, z: 0}
+      - {x: -1.05, y: 0.975, z: 0}
+      - {x: -0.34999996, y: 0.275, z: 0}
+      - {x: -0.34999996, y: 0.975, z: 0}
+      - {x: 0.35000002, y: 0.275, z: 0}
+      - {x: 0.35000002, y: 0.975, z: 0}
+      - {x: 1.05, y: 0.275, z: 0}
+      - {x: 1.05, y: 0.975, z: 0}
+    - LocalPoints:
+      - {x: -0.6999999, y: 0.275, z: 0}
+      - {x: -0.6999999, y: 0.975, z: 0}
+      - {x: 0.7, y: 0.275, z: 0}
+      - {x: 0.7, y: 0.975, z: 0}
+    - LocalPoints:
+      - {x: 0, y: 0.625, z: 0}
+    m_LocalPoints:
+    - {x: -1.05, y: 0.275, z: 0}
+    - {x: -1.05, y: 0.975, z: 0}
+    - {x: -0.34999996, y: 0.275, z: 0}
+    - {x: -0.34999996, y: 0.975, z: 0}
+    - {x: 0.35000002, y: 0.275, z: 0}
+    - {x: 0.35000002, y: 0.975, z: 0}
+    - {x: 1.05, y: 0.275, z: 0}
+    - {x: 1.05, y: 0.975, z: 0}
+    m_WorldPoints: []
+    m_ScanAtRuntime: 0
+    m_ScanResolution: 0.7
+    m_ScanResolutionTmp: 0.7
+    m_PointCount: 8
+    m_IsScanned: 1
+    m_GizmoRescan: 0
+    m_GizmoDrawGrid: 0
+    m_PointReduction: 0
+    m_MaxReduction: 2
 --- !u!114 &2028093372630314451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,3 +209,16 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.5, y: 0.2, z: 0.7}
   m_Center: {x: 0, y: 0.1, z: 0}
+--- !u!65 &6910687002104297614
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7419886774286829741}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2.5, y: 1, z: 0.4}
+  m_Center: {x: 0, y: 0.75, z: 0}

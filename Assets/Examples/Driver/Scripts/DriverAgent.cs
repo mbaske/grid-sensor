@@ -2,7 +2,7 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
-using VehicleBehaviour;
+using UnityStandardAssets.Vehicles.Car;
 using MBaske.MLUtil;
 
 namespace MBaske.Driver
@@ -10,7 +10,7 @@ namespace MBaske.Driver
     public class DriverAgent : Agent
     {
         private Road m_Road;
-        private WheelVehicle m_Car;
+        private CarController m_Car;
         private Vector3 m_ChunkPos;
         private StatsRecorder m_Stats;
 
@@ -23,7 +23,7 @@ namespace MBaske.Driver
         private int m_StatsInterval = 120;
         private int m_CollisionCount;
 
-        private const int c_CheckStateInterval = 12;
+        private const int c_CheckStateInterval = 20;
         
 
         public override void Initialize()
@@ -32,7 +32,7 @@ namespace MBaske.Driver
             m_Road = GetComponentInChildren<Road>();
             m_Road.Initialize();
 
-            m_Car = GetComponentInChildren<WheelVehicle>();
+            m_Car = GetComponentInChildren<CarController>();
             m_Car.CollisionEvent += OnCollision;
             m_Car.Initialize();
         }
@@ -53,17 +53,16 @@ namespace MBaske.Driver
 
         public override void CollectObservations(VectorSensor sensor)
         {
-            sensor.AddObservation(m_Car.Throttle);
-            sensor.AddObservation(m_Car.Steering);
-            sensor.AddObservation(m_Car.Gyro);
+            sensor.AddObservation(m_Car.NormSteer);
             sensor.AddObservation(Normalization.Sigmoid(m_Car.LocalSpin));
             sensor.AddObservation(Normalization.Sigmoid(m_Car.LocalVelocity));
         }
 
         public override void OnActionReceived(ActionBuffers actionBuffers)
         {
-            var actions = actionBuffers.DiscreteActions;
-            float speed = m_Car.ManagedUpdate(actions[0] - 1, actions[1] - 1);
+            var actions = actionBuffers.ContinuousActions;
+            m_Car.Move(actions[0], actions[1], actions[1], actions[2]);
+            float speed = m_Car.ForwardSpeed;
             AddReward(speed * 0.01f);
 
             if (StepCount % m_StatsInterval == 0)
@@ -81,9 +80,10 @@ namespace MBaske.Driver
 
         public override void Heuristic(in ActionBuffers actionsOut)
         {
-            var actions = actionsOut.DiscreteActions;
-            actions[0] = 1 + Mathf.RoundToInt(Input.GetAxis("Vertical"));
-            actions[1] = 1 + Mathf.RoundToInt(Input.GetAxis("Horizontal"));
+            var actions = actionsOut.ContinuousActions;
+            actions[0] = Mathf.RoundToInt(Input.GetAxis("Horizontal"));
+            actions[1] = Mathf.RoundToInt(Input.GetAxis("Vertical"));
+            actions[2] = Mathf.RoundToInt(Input.GetAxis("Jump"));
         }
 
         private void CheckState()
@@ -92,11 +92,11 @@ namespace MBaske.Driver
             {
                 EndEpisode();
             }
-            else if (m_Car.IsMoving)
+            else if (m_Car.IsMoving())
             {
                 m_Time = Time.time;
 
-                // TBD chunk length = 12m, replace at 30m distance.
+                // TBD chunk length = 15m, replace at 30m distance.
                 if ((m_Car.transform.position - m_ChunkPos).sqrMagnitude > 900)
                 {
                     m_Road.ReplaceFirstChunk();
@@ -107,7 +107,7 @@ namespace MBaske.Driver
 
         private void OnCollision()
         {
-            AddReward(-1);
+            AddReward(-0.1f);
             m_CollisionCount++;
         }
 

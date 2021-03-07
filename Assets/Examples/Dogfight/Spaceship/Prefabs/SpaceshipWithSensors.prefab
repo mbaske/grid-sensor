@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4602362261510581039}
-  - component: {fileID: 4667443694680309809}
+  - component: {fileID: 3723382926666400401}
   m_Layer: 7
   m_Name: FrontSensor
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 2705286137011316497}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4667443694680309809
+--- !u!114 &3723382926666400401
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,42 +40,43 @@ MonoBehaviour:
   m_GameObject: {fileID: 1711177104993061207}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41b2f86451b81a941a1969c06bfa732e, type: 3}
+  m_Script: {fileID: 11500000, guid: 1f0fba8a51f9b844eb0c49ad84d31c41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_ObservationShape: 30 (height) x 45 (width) x 1 (channels)
   m_SensorName: FrontSensor
   m_CompressionType: 1
-  m_PixelGridProvider: {fileID: 0}
-  m_BufferSize: 100
-  m_ObservationStackSize: 2
-  m_Layers: 0600000007000000
-  m_Tags:
-  - Asteroid
-  - Spaceship
-  m_ChannelEncoding: 0
-  m_DetectionType: 2
-  m_ScanResolution: 2
-  m_ScanExtent: 5
+  m_StackedObservations: 1
+  m_ColliderBufferSize: 256
   m_ClearCacheOnReset: 0
-  m_BlurStrength: 0.5
-  m_BlurThreshold: 0.3
-  m_CellArc: 2.87
+  m_AddDetectableObject: {fileID: 0}
+  m_Detectables:
+    m_SettingsByTag:
+    - Tag: Asteroid
+      Enabled: 1
+      DetectionType: 2
+      ShapeModifier: 3
+      Detectable: {fileID: 2138244746495942680, guid: 86ad3fd1eec2f224fba2164824decdcd, type: 3}
+      m_AllObservations: []
+      m_ObservationsList: []
+  m_GridSize: {x: 45, y: 30}
+  m_SensorResolution: 2,79 meters (4,00 deg at 40,00 meters)
+  m_CellArc: 4
   m_LatAngleNorth: 60
   m_LatAngleSouth: 60
-  m_LonAngle: 105
-  m_MinDistance: 1
+  m_LonAngle: 90
+  m_MinDistance: 0
   m_MaxDistance: 40
-  m_DistanceNormalization: 0
-  m_NormalizationWeight: 0.5
+  m_Normalization:
+    Value: 0.5
+    Weighted: 1
   m_LonLatRect:
     serializedVersion: 2
-    x: -106.189995
-    y: -60.269997
-    width: 212.37999
-    height: 120.53999
-  m_GridDimensions: {x: 74, y: 42}
-  m_GridResolution: 2.003638
-  ResetFlag: 0
+    x: -90
+    y: -60
+    width: 180
+    height: 120
+  m_GridResolution: 2.792527
 --- !u!1 &3368916564331560363
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,9 +87,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2705286137011316497}
   - component: {fileID: 8272652485838468499}
+  - component: {fileID: 7855240676147598739}
   - component: {fileID: 1307381988098189492}
   - component: {fileID: 3873156926313782398}
   - component: {fileID: 8065335583530700339}
+  - component: {fileID: 7031209403986094748}
   - component: {fileID: 1994634600011376337}
   - component: {fileID: 4691802204840556954}
   m_Layer: 7
@@ -129,6 +132,109 @@ MonoBehaviour:
   m_ControlIncrement: 0.04
   m_ControlAttenuate: 0.95
   m_BackwardSpeedFactor: 0.25
+--- !u!114 &7855240676147598739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3368916564331560363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c191b328ab2d5344a21508d5344fab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AddOneHotObservation: 1
+  m_Shape:
+    m_ScanResult:
+    - LocalPoints:
+      - {x: -0.125, y: 0.025000006, z: -0.625}
+      - {x: -0.125, y: 0.025000006, z: -0.375}
+      - {x: -0.125, y: 0.025000006, z: -0.125}
+      - {x: -0.125, y: 0.025000006, z: 0.125}
+      - {x: -0.125, y: 0.025000006, z: 0.375}
+      - {x: -0.125, y: 0.025000006, z: 0.625}
+      - {x: -0.125, y: 0.275, z: -0.625}
+      - {x: -0.125, y: 0.275, z: -0.375}
+      - {x: -0.125, y: 0.275, z: -0.125}
+      - {x: -0.125, y: 0.275, z: 0.125}
+      - {x: -0.125, y: 0.275, z: 0.375}
+      - {x: -0.125, y: 0.275, z: 0.625}
+      - {x: 0.125, y: 0.025000006, z: -0.625}
+      - {x: 0.125, y: 0.025000006, z: -0.375}
+      - {x: 0.125, y: 0.025000006, z: -0.125}
+      - {x: 0.125, y: 0.025000006, z: 0.125}
+      - {x: 0.125, y: 0.025000006, z: 0.375}
+      - {x: 0.125, y: 0.025000006, z: 0.625}
+      - {x: 0.125, y: 0.275, z: -0.625}
+      - {x: 0.125, y: 0.275, z: -0.375}
+      - {x: 0.125, y: 0.275, z: -0.125}
+      - {x: 0.125, y: 0.275, z: 0.125}
+      - {x: 0.125, y: 0.275, z: 0.375}
+      - {x: 0.125, y: 0.275, z: 0.625}
+    - LocalPoints:
+      - {x: -0.125, y: 0.025000006, z: -0.625}
+      - {x: -0.125, y: 0.025000006, z: -0.25}
+      - {x: -0.125, y: 0.025000006, z: 0.25}
+      - {x: -0.125, y: 0.025000006, z: 0.625}
+      - {x: -0.125, y: 0.275, z: -0.625}
+      - {x: -0.125, y: 0.275, z: -0.25}
+      - {x: -0.125, y: 0.275, z: 0.25}
+      - {x: -0.125, y: 0.275, z: 0.625}
+      - {x: 0.125, y: 0.025000006, z: -0.625}
+      - {x: 0.125, y: 0.025000006, z: -0.25}
+      - {x: 0.125, y: 0.025000006, z: 0.25}
+      - {x: 0.125, y: 0.025000006, z: 0.625}
+      - {x: 0.125, y: 0.275, z: -0.625}
+      - {x: 0.125, y: 0.275, z: -0.25}
+      - {x: 0.125, y: 0.275, z: 0.25}
+      - {x: 0.125, y: 0.275, z: 0.625}
+    - LocalPoints:
+      - {x: -0.125, y: 0.025000006, z: -0.375}
+      - {x: -0.125, y: 0.025000006, z: 0.375}
+      - {x: -0.125, y: 0.275, z: -0.375}
+      - {x: -0.125, y: 0.275, z: 0.375}
+      - {x: 0.125, y: 0.025000006, z: -0.375}
+      - {x: 0.125, y: 0.025000006, z: 0.375}
+      - {x: 0.125, y: 0.275, z: -0.375}
+      - {x: 0.125, y: 0.275, z: 0.375}
+    - LocalPoints:
+      - {x: 0, y: 0.15, z: 0}
+    m_LocalPoints:
+    - {x: -0.125, y: 0.025000006, z: -0.625}
+    - {x: -0.125, y: 0.025000006, z: -0.375}
+    - {x: -0.125, y: 0.025000006, z: -0.125}
+    - {x: -0.125, y: 0.025000006, z: 0.125}
+    - {x: -0.125, y: 0.025000006, z: 0.375}
+    - {x: -0.125, y: 0.025000006, z: 0.625}
+    - {x: -0.125, y: 0.275, z: -0.625}
+    - {x: -0.125, y: 0.275, z: -0.375}
+    - {x: -0.125, y: 0.275, z: -0.125}
+    - {x: -0.125, y: 0.275, z: 0.125}
+    - {x: -0.125, y: 0.275, z: 0.375}
+    - {x: -0.125, y: 0.275, z: 0.625}
+    - {x: 0.125, y: 0.025000006, z: -0.625}
+    - {x: 0.125, y: 0.025000006, z: -0.375}
+    - {x: 0.125, y: 0.025000006, z: -0.125}
+    - {x: 0.125, y: 0.025000006, z: 0.125}
+    - {x: 0.125, y: 0.025000006, z: 0.375}
+    - {x: 0.125, y: 0.025000006, z: 0.625}
+    - {x: 0.125, y: 0.275, z: -0.625}
+    - {x: 0.125, y: 0.275, z: -0.375}
+    - {x: 0.125, y: 0.275, z: -0.125}
+    - {x: 0.125, y: 0.275, z: 0.125}
+    - {x: 0.125, y: 0.275, z: 0.375}
+    - {x: 0.125, y: 0.275, z: 0.625}
+    m_WorldPoints: []
+    m_ScanAtRuntime: 0
+    m_ScanResolution: 0.25
+    m_ScanResolutionTmp: 0.25
+    m_PointCount: 24
+    m_IsScanned: 1
+    m_GizmoRescan: 0
+    m_GizmoDrawGrid: 0
+    m_PointReduction: 0
+    m_MaxReduction: 3
 --- !u!33 &1307381988098189492
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -192,10 +298,23 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.3
+  m_Radius: 0.2
   m_Height: 1.5
   m_Direction: 2
-  m_Center: {x: 0, y: 0.17, z: 0}
+  m_Center: {x: 0, y: 0.15, z: 0}
+--- !u!65 &7031209403986094748
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3368916564331560363}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.9, y: 0.1, z: 0.5}
+  m_Center: {x: 0, y: 0.175, z: -0.425}
 --- !u!54 &1994634600011376337
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -328,7 +447,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3522763159582465864}
-  - component: {fileID: 5484580444070624716}
+  - component: {fileID: 1125325871086228899}
   m_Layer: 7
   m_Name: LongRangeSensor
   m_TagString: Untagged
@@ -350,7 +469,7 @@ Transform:
   m_Father: {fileID: 2705286137011316497}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5484580444070624716
+--- !u!114 &1125325871086228899
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -359,38 +478,42 @@ MonoBehaviour:
   m_GameObject: {fileID: 7933111287531128144}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41b2f86451b81a941a1969c06bfa732e, type: 3}
+  m_Script: {fileID: 11500000, guid: 1f0fba8a51f9b844eb0c49ad84d31c41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_ObservationShape: 32 (height) x 64 (width) x 4 (channels)
   m_SensorName: LongRangeSensor
   m_CompressionType: 1
-  m_PixelGridProvider: {fileID: 0}
-  m_BufferSize: 10
-  m_ObservationStackSize: 1
-  m_Layers: 07000000
-  m_Tags:
-  - Spaceship
-  m_ChannelEncoding: 0
-  m_DetectionType: 0
-  m_ScanResolution: 2
-  m_ScanExtent: 5
+  m_StackedObservations: 2
+  m_ColliderBufferSize: 32
   m_ClearCacheOnReset: 0
-  m_BlurStrength: 0
-  m_BlurThreshold: 0
-  m_CellArc: 7.5
-  m_LatAngleNorth: 82
-  m_LatAngleSouth: 82
+  m_AddDetectableObject: {fileID: 0}
+  m_Detectables:
+    m_SettingsByTag:
+    - Tag: Spaceship
+      Enabled: 1
+      DetectionType: 0
+      ShapeModifier: 0
+      Detectable: {fileID: 7855240676147598739}
+      m_AllObservations:
+      - One-Hot
+      m_ObservationsList:
+      - One-Hot
+  m_GridSize: {x: 64, y: 32}
+  m_SensorResolution: 7,96 meters (5,70 deg at 80,00 meters)
+  m_CellArc: 5.7
+  m_LatAngleNorth: 90
+  m_LatAngleSouth: 90
   m_LonAngle: 180
-  m_MinDistance: 1
-  m_MaxDistance: 75
-  m_DistanceNormalization: 0
-  m_NormalizationWeight: 0.5
+  m_MinDistance: 0
+  m_MaxDistance: 80
+  m_Normalization:
+    Value: 0.5
+    Weighted: 1
   m_LonLatRect:
     serializedVersion: 2
     x: -180
-    y: -82.5
+    y: -90
     width: 360
-    height: 165
-  m_GridDimensions: {x: 48, y: 22}
-  m_GridResolution: 9.817477
-  ResetFlag: 0
+    height: 180
+  m_GridResolution: 7.958701

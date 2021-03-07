@@ -6,11 +6,11 @@ namespace MBaske.Driver
     public class RoadChunk : Poolable
     {
         // Nominal length (no curvature).
-        private const int c_Length = 12;
+        private const int c_Length = 15;
         // Distances outward from road center.
-        private const float c_RoadExtent = 3.4f;
-        private const float c_MeshExtent = 6f;
-        private const float c_PoleDistance = 3.8f;
+        private const float c_RoadExtent = 4.25f;
+        private const float c_MeshExtent = 7.5f;
+        private const float c_PoleDistance = 4.5f;
         // Applicable to cones and barrels.
         private static readonly float s_ObstacleXSpacing = c_RoadExtent / (c_Length + 1f);
 
@@ -31,7 +31,7 @@ namespace MBaske.Driver
         private void Awake()
         {
             m_Pool = FindObjectOfType<ObstaclePool>();
-            m_Obstacles = new Stack<Obstacle>();
+            m_Obstacles = new Stack<Obstacle>(10);
 
             m_MeshFilter = GetComponent<MeshFilter>();
             m_MeshCollider = GetComponent<MeshCollider>();

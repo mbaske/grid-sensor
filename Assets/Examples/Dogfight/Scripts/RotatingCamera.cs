@@ -21,10 +21,11 @@ namespace MBaske.Dogfight
 		private Vector3 m_Position;
 		private Vector3 m_Velocity;
 
-		private void Awake()
+		private void Start()
 		{
 			m_Targets = FindObjectsOfType<Spaceship>().Select(x => x.transform).ToArray();
-			m_Target = m_Targets[0];
+			this.enabled = m_Targets.Length > 0;
+			m_Target = this.enabled ? m_Targets[0] : null;
 		}
 
 		private void LateUpdate()
@@ -33,13 +34,13 @@ namespace MBaske.Dogfight
 			{
 				Vector3 pos = transform.position;
 				float min = (m_Target.position - pos).sqrMagnitude;
-
-				foreach (var t in m_Targets)
+				
+				for (int i = 0; i < m_Targets.Length; i++)
 				{
-					float d = (t.position - pos).sqrMagnitude;
+					float d = (m_Targets[i].position - pos).sqrMagnitude;
 					if (d < min)
 					{
-						m_Target = t;
+						m_Target = m_Targets[i];
 						min = d;
 					}
 				}

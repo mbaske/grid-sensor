@@ -90,11 +90,11 @@ namespace MBaske.Dogfight
 
         private void Initialize()
         {
-            m_Asteroids = new List<Asteroid>();
-            m_AsteroidPositions = new List<Vector3>();
+            m_Asteroids = new List<Asteroid>(m_AsteroidCount);
+            m_AsteroidPositions = new List<Vector3>(m_AsteroidCount);
 
             m_Ships = new List<Spaceship>(FindObjectsOfType<Spaceship>());
-            m_ShipPositions = new List<Vector3>();
+            m_ShipPositions = new List<Vector3>(m_AsteroidCount / 2);
 
             foreach (Vector3 p in AsteroidPositions())
             {
@@ -122,7 +122,7 @@ namespace MBaske.Dogfight
             }
 
             m_ShipPositions = Shuffle(m_ShipPositions);
-            for (int i = 0; i < m_Ships.Count; i++)
+            for (int i = 0, n = Mathf.Min(m_Ships.Count, m_ShipPositions.Count); i < n; i++)
             {
                 m_Ships[i].LocalPosition = m_ShipPositions[i];
             }

@@ -2,8 +2,9 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
-using MBaske.Sensors;
+using MBaske.Sensors.Grid;
 using MBaske.MLUtil;
+using System.Collections.Generic;
 
 namespace MBaske.Dogfight
 {
@@ -18,20 +19,22 @@ namespace MBaske.Dogfight
         private BulletPool m_Bullets;
 
         [SerializeField]
-        [Tooltip("Reference to front-facing sensor for retrieving detection results.")]
-        private SpatialGridSensorComponent m_FrontSensor;
+        [Tooltip("Reference to sensor component for retrieving detected opponent gameobjects.")]
+        private GridSensorComponent3D m_SensorComponent;
         [SerializeField]
-        [Tooltip("Ship-to-ship distance below which agent is considered following opponent.")]
-        private float m_FollowDistance = 30;
+        [Tooltip("Ship-to-ship forward axis angle below which agent is rewarded for following opponent.")]
+        private float m_TargetFollowAngle = 30;
         [SerializeField]
-        [Tooltip("Ship-to-ship forward axis angle below which agent is considered following opponent.")]
-        private float m_FollowAngle = 30;
+        [Tooltip("Ship-to-ship distance below which agent is rewarded for following opponent.")]
+        private float m_TargetFollowDistance = 50;
+        private float m_TargetFollowDistanceSqr;
+        [SerializeField]
+        [Tooltip("Ship-to-ship forward axis angle below which target is locked and auto-fire triggered.")]
+        private float m_TargetLockAngle = 10;
         [SerializeField]
         [Tooltip("Ship-to-ship distance below which target is locked and auto-fire triggered.")]
         private float m_TargetLockDistance = 20;
-        [SerializeField]
-        [Tooltip("Ship-to-ship forward axis angle below which target is locked and auto-fire triggered.")]
-        private float m_TargetLockAngle = 5;
+        private float m_TargetLockDistanceSqr;
         [SerializeField]
         [Tooltip("Delay between auto-fire shots.")]
         private float m_ReloadTime = 0.2f;
@@ -41,7 +44,11 @@ namespace MBaske.Dogfight
         private int m_StatsInterval = 120;
         private int m_CollisionCount;
         private int m_HitScoreCount;
-        private int m_TargetingCount;
+
+        private IList<GameObject> m_Targets;
+        private static string m_TargetTag;
+        private static IDictionary<GameObject, PilotAgent> s_TargetCache;
+
 
         public override void Initialize()
         {
@@ -52,15 +59,21 @@ namespace MBaske.Dogfight
             m_Ship = GetComponentInChildren<Spaceship>();
             m_Ship.BulletHitEvent += OnBulletHitSuffered;
             m_Ship.CollisionEvent += OnCollision;
-            m_Ship.EnvironmentRadius = m_Asteroids.FieldRadius;
+            m_Ship.EnvironmentRadius = m_Asteroids ? m_Asteroids.FieldRadius : 100;
+
+            s_TargetCache ??= CreateTargetCache();
+            m_TargetTag ??= m_Ship.tag;
+            m_Targets = new List<GameObject>(10);
+
+            m_TargetFollowDistanceSqr = m_TargetFollowDistance * m_TargetFollowDistance;
+            m_TargetLockDistanceSqr = m_TargetLockDistance * m_TargetLockDistance;
         }
 
         public override void OnEpisodeBegin()
         {
-            m_Asteroids.OnEpisodeBegin();
+            m_Asteroids?.OnEpisodeBegin();
             m_CollisionCount = 0;
             m_HitScoreCount = 0;
-            m_TargetingCount = 0;
         }
 
         public override void CollectObservations(VectorSensor sensor)
@@ -73,17 +86,18 @@ namespace MBaske.Dogfight
             sensor.AddObservation(Normalization.Sigmoid(m_Ship.LocalSpin));
             sensor.AddObservation(Normalization.Sigmoid(m_Ship.LocalVelocity));
 
+            Vector3 pos = m_Ship.transform.position;
+            Vector3 fwd = m_Ship.transform.forward;
+            m_Targets.Clear();
 
-            Vector3 shipPos = m_Ship.transform.position;
-            Vector3 shipFwd = m_Ship.transform.forward;
-
-            if (HasTargetLock(shipPos, shipFwd, out Vector3 targetPos) && CanShoot())
+            foreach (var target in m_SensorComponent.GetDetectedGameObjects(m_TargetTag))
             {
-                GunPosition = shipPos + shipFwd;
-                GunDirection = (targetPos - shipPos).normalized;
-
-                m_Bullets.Shoot(this);
-                m_ShotTime = Time.time;
+                Vector3 delta = target.transform.position - pos;
+                if (Vector3.Angle(fwd, delta) < m_TargetFollowAngle && 
+                    delta.sqrMagnitude < m_TargetFollowDistanceSqr)
+                {
+                    m_Targets.Add(target);
+                }
             }
         }
 
@@ -91,10 +105,7 @@ namespace MBaske.Dogfight
         {
             var actions = actionBuffers.DiscreteActions;
             float speed = m_Ship.ManagedUpdate(actions[0] - 1, actions[1] - 1, actions[2] - 1);
-            // Reward for forward speed.
-            // Increasing this factor will cause the agent to 
-            // favour speed over following/targeting opponents.
-            AddReward(speed * 0.001f);
+            CheckTargets();
 
             if (StepCount % m_StatsInterval == 0)
             {
@@ -102,10 +113,8 @@ namespace MBaske.Dogfight
                 m_Stats.Add("Pilot/Speed", speed);
                 m_Stats.Add("Pilot/Collision Ratio", m_CollisionCount / n);
                 m_Stats.Add("Pilot/Hit Score Ratio", m_HitScoreCount / n);
-                m_Stats.Add("Pilot/Target Ratio", m_TargetingCount / n);
                 m_CollisionCount = 0;
                 m_HitScoreCount = 0;
-                m_TargetingCount = 0;
             }
         }
 
@@ -119,71 +128,35 @@ namespace MBaske.Dogfight
             actions[2] = 1 + Mathf.RoundToInt(Input.GetAxis("Horizontal")); // roll
         }
 
-        private bool HasTargetLock(Vector3 shipPos, Vector3 shipFwd, out Vector3 targetPos)
+        private void CheckTargets()
         {
-            targetPos = default;
-            bool hasLockAny = false;
+            Vector3 pos = m_Ship.transform.position;
+            Vector3 fwd = m_Ship.transform.forward;
+            Vector3 vlc = m_Ship.WorldVelocity;
 
-            if (m_FrontSensor.HasDetectionResult(out DetectionResult result))
+            foreach (var target in m_Targets)
             {
-                var list = result.GetDetectionDataList(m_Ship.tag);
+                Vector3 delta = target.transform.position - pos;
+                // Speed towards target.
+                float speed = Vector3.Dot(delta.normalized, vlc);
+                AddReward(speed * 0.01f);
 
-                if (list.Count > 0)
+                if (speed > 0)
                 {
-                    float maxWeight = 0;
-                    var target = list[0];
+                    // Penalize opponent for being followed.
+                    s_TargetCache[target].AddReward(speed * -0.005f);
+                }
 
-                    foreach (var item in list)
-                    {
-                        var pos = ((DetectedCollider)item.AdditionalDetectionData).Position;
-                        float weight = GetTargetWeight(shipPos, shipFwd, pos, out bool hasLock);
-
-                        if (weight > maxWeight)
-                        {
-                            target = item;
-                            maxWeight = weight;
-                            hasLockAny = hasLockAny || hasLock;
-                            targetPos = hasLock ? pos : targetPos;
-                        }
-                    }
-
-                    if (maxWeight > 0)
-                    {
-                        // Reward agent for following opponent.
-                        AddReward(maxWeight * 2); // TODO factor, prevent zero-sum necessary?
-                        // Penalize opponent for being followed.
-                        ((DetectedCollider)target.AdditionalDetectionData).Collider.
-                            GetComponentInParent<PilotAgent>().AddReward(-maxWeight);
-
-                        m_TargetingCount++;
-                    }
+                if (CanShoot() &&
+                    Vector3.Angle(fwd, delta) < m_TargetLockAngle &&
+                    delta.sqrMagnitude < m_TargetLockDistanceSqr)
+                {
+                    GunPosition = pos + fwd;
+                    GunDirection = delta.normalized;
+                    m_Bullets.Shoot(this);
+                    m_ShotTime = Time.time;
                 }
             }
-
-            return hasLockAny;
-        }
-
-        private float GetTargetWeight(Vector3 shipPos, Vector3 shipFwd, Vector3 targetPos, out bool hasLock)
-        {
-            Vector3 delta = targetPos - shipPos;
-            float angle = Vector3.Angle(shipFwd, delta);
-
-            if (angle <= m_FollowAngle)
-            {
-                float distance = delta.magnitude;
-
-                if (distance <= m_FollowDistance)
-                {
-                    hasLock = angle <= m_TargetLockAngle && distance <= m_TargetLockDistance;
-
-                    float rAngle = 1 - angle / m_FollowAngle;
-                    float rDistance = 1 - distance / m_FollowDistance;
-                    return rAngle * rDistance;
-                }
-            }
-
-            hasLock = false;
-            return 0;
         }
 
         private bool CanShoot()
@@ -193,7 +166,7 @@ namespace MBaske.Dogfight
 
         private void OnCollision()
         {
-            AddReward(-1);
+            AddReward(-2);
             m_CollisionCount++;
         }
 
@@ -201,7 +174,7 @@ namespace MBaske.Dogfight
         // Otherwise, OnCollision() registers bullet hits.
         public void OnBulletHitSuffered()
         {
-            AddReward(-1);
+            AddReward(-1); 
         }
 
         public void OnBulletHitScored()
@@ -214,6 +187,18 @@ namespace MBaske.Dogfight
         {
             m_Ship.BulletHitEvent -= OnBulletHitSuffered;
             m_Ship.CollisionEvent -= OnCollision;
+        }
+
+        private static IDictionary<GameObject, PilotAgent> CreateTargetCache()
+        {
+            var cache = new Dictionary<GameObject, PilotAgent>();
+            var ships = FindObjectsOfType<Spaceship>();
+
+            foreach (var ship in ships)
+            {
+                cache.Add(ship.gameObject, ship.GetComponentInParent<PilotAgent>());
+            }
+            return cache;
         }
     }
 }

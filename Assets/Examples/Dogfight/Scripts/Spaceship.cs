@@ -31,6 +31,7 @@ namespace MBaske.Dogfight
         /// </summary>
         public float Roll { get; private set; }
 
+        public Vector3 WorldVelocity => m_Rigidbody.velocity;
         public Vector3 LocalVelocity => transform.InverseTransformVector(m_Rigidbody.velocity);
         public Vector3 LocalSpin => transform.InverseTransformVector(m_Rigidbody.angularVelocity);
 
@@ -58,6 +59,7 @@ namespace MBaske.Dogfight
         private float m_BrakeThreshRadius;
         private float m_BrakeThreshRadiusSqr;
 
+        [Space]
         [SerializeField]
         private float m_ControlIncrement = 0.04f;
         [SerializeField]
@@ -67,6 +69,10 @@ namespace MBaske.Dogfight
 
         private Rigidbody m_Rigidbody;
 
+        private void Awake()
+        {
+            Stop();
+        }
 
         public float ManagedUpdate(int throttle, int pitch, int roll)
         {
@@ -122,7 +128,6 @@ namespace MBaske.Dogfight
             return fwdSpeed;
         }
 
-
         private void Stop()
         {
             m_Rigidbody ??= GetComponent<Rigidbody>();
@@ -132,11 +137,6 @@ namespace MBaske.Dogfight
             Throttle = 0;
             Pitch = 0;
             Roll = 0;
-        }
-
-        private void Awake()
-        {
-            Stop();
         }
 
         private void OnCollisionEnter(Collision collision)

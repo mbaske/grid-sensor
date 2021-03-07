@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using Unity.Mathematics;
 using Random = UnityEngine.Random;
+using MBaske.Sensors.Grid;
+using EasyButtons;
 
 namespace MBaske.Dogfight
 {
@@ -23,9 +25,10 @@ namespace MBaske.Dogfight
             set { m_Rigidbody.angularVelocity = value; }
         }
 
-        [Range(1f, 10f)]
+        [Space]
+        [Range(1f, 100f)]
         public float MinSize = 4;
-        [Range(1f, 10f)]
+        [Range(1f, 100f)]
         public float MaxSize = 8;
         [Range(0f, 0.9f)]
         public float MaxDeform = 0.75f;
@@ -33,25 +36,8 @@ namespace MBaske.Dogfight
         public float Noise = 1;
 
         [SerializeField]
-        private Mesh m_IcoMesh;
-        private Mesh m_Mesh;
-
+        private Mesh m_Template;
         private Rigidbody m_Rigidbody;
-        private MeshFilter m_MeshFilter;
-        private MeshCollider m_MeshCollider;
-
-        private void OnValidate()
-        {
-            MinSize = Mathf.Min(MinSize, MaxSize);
-        }
-
-        private void Awake()
-        {
-            m_Mesh = Instantiate(m_IcoMesh);
-            m_Rigidbody = GetComponent<Rigidbody>();
-            m_MeshFilter = GetComponent<MeshFilter>();
-            m_MeshCollider = GetComponent<MeshCollider>();
-        }
 
         public void RandomizeShape(float minSize, float maxSize, float maxDeform, float noise)
         {
@@ -59,32 +45,68 @@ namespace MBaske.Dogfight
             MaxSize = maxSize;
             MaxDeform = maxDeform;
             Noise = noise;
-            RandomizeShape();
+            UpdateProperties(true);
         }
 
-        public void RandomizeShape()
+        private void OnValidate()
         {
-            // Default mesh radius is 1, size 2x2x2.
-            Vector3 radius = Vector3.one + Random.insideUnitSphere * MaxDeform;
-            radius *= Random.Range(MinSize, MaxSize) * 0.5f;
-            transform.localScale = radius;
-            m_Rigidbody.mass = radius.x * radius.y * radius.z * 10;
+            MinSize = Mathf.Min(MinSize, MaxSize);
+        }
 
+        [Button]
+        private void DebugRandomize()
+        {
+            UpdateProperties(true);
+        }
+
+        [Button]
+        private void DebugReset()
+        {
+            UpdateProperties(false);
+        }
+
+        public void UpdateProperties(bool randomize)
+        {
             float a = Random.Range(0.5f, 2f);
             float b = Random.Range(0.25f, 0.5f) * (Random.value > 0.5f ? Noise : -Noise);
 
-            Vector3[] verts = m_Mesh.vertices;
-            for (int i = 0; i < verts.Length; i++)
+            Mesh ??= Instantiate(m_Template);
+            Vector3[] vtx = m_Template.vertices;
+            for (int i = 0; i < vtx.Length; i++)
             {
-                verts[i] = m_IcoMesh.vertices[i] * (1 + noise.cnoise(verts[i] * a) * b);
+                vtx[i] = m_Template.vertices[i] * (randomize ? (1 + noise.cnoise(vtx[i] * a) * b) : 1);
             }
+            Mesh.vertices = vtx;
+            Mesh.RecalculateNormals();
+            Mesh.RecalculateBounds();
+            GetComponent<MeshCollider>().sharedMesh = Mesh;
 
-            m_Mesh.vertices = verts;
-            m_Mesh.RecalculateNormals();
-            m_Mesh.RecalculateBounds();
+            // Default mesh radius is 1, size 2x2x2.
+            Vector3 radius = Vector3.one + Random.insideUnitSphere * MaxDeform;
+            radius *= Random.Range(MinSize, MaxSize) * 0.5f;
+            transform.localScale = randomize ? radius : Vector3.one;
 
-            m_MeshFilter.sharedMesh = m_Mesh;
-            m_MeshCollider.sharedMesh = m_Mesh;
+            m_Rigidbody = GetComponent<Rigidbody>();
+            m_Rigidbody.mass = randomize ? radius.x * radius.y * radius.z * 10 : 1;
+
+            if (TryGetComponent(out DetectableGameObject detectable))
+            {
+                // The grid sensor might have already scanned this asteroid,
+                // before the randomized mesh collider was applied.
+                // In that case, it'll be rescanned later.
+                detectable.ForceRescan();
+            }
+        }
+
+        private Mesh Mesh
+        {
+            get { return GetComponent<MeshFilter>().sharedMesh; }
+            set { GetComponent<MeshFilter>().sharedMesh = value; }
+        }
+
+        private void OnDestroy()
+        {
+            Destroy(Mesh);
         }
     }
 }

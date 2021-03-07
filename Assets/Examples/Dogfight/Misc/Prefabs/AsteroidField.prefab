@@ -43,9 +43,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3287cdae43781d9479742d13e19480d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 120
-  m_Spacing: 22
-  m_AsteroidCount: 691
+  FieldRadius: 100
+  m_AsteroidSpacing: 22
+  m_AsteroidCount: 389
   m_MaxVelocity: 5
   m_MaxSpin: 2
   m_MinSize: 4

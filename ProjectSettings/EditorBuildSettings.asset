@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Examples/Bouncer/Scenes/Bouncer.unity
-    guid: b4440c1ff3bd0174e9bb4b3de6872bbb
-  - enabled: 0
     path: Assets/Examples/Dogfight.unity
     guid: f2b27c4d3818b514fb6b46fb128e0ba9
   - enabled: 1

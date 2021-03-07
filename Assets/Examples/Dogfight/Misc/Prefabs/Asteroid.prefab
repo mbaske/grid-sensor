@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8350630960708977101}
   - component: {fileID: 8350630960708977136}
+  - component: {fileID: 2138244746495942680}
   - component: {fileID: 8350630960708977138}
   - component: {fileID: 8350630960708977139}
   - component: {fileID: 8350630960708977137}
@@ -47,11 +48,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2356afb5bb3de994991b4868bcecaa83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MinSize: 2
-  MaxSize: 5
-  MaxDeform: 0.5
+  MinSize: 4
+  MaxSize: 8
+  MaxDeform: 0.75
   Noise: 1
-  m_IcoMesh: {fileID: 4300000, guid: 623b3119ea3166946b27c96f318bae36, type: 2}
+  m_Template: {fileID: 4300000, guid: d03347c3e3917054f83a8db42cd79d81, type: 2}
+--- !u!114 &2138244746495942680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8350630960708977142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c191b328ab2d5344a21508d5344fab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AddOneHotObservation: 0
+  m_Shape:
+    m_ScanResult:
+    - LocalPoints:
+      - {x: -0.5, y: -0.5, z: -0.5}
+      - {x: -0.5, y: -0.5, z: 0.5}
+      - {x: -0.5, y: 0.5, z: -0.5}
+      - {x: -0.5, y: 0.5, z: 0.5}
+      - {x: 0.5, y: -0.5, z: -0.5}
+      - {x: 0.5, y: -0.5, z: 0.5}
+      - {x: 0.5, y: 0.5, z: -0.5}
+      - {x: 0.5, y: 0.5, z: 0.5}
+    - LocalPoints:
+      - {x: 0, y: 0, z: 0}
+    m_LocalPoints:
+    - {x: -0.5, y: -0.5, z: -0.5}
+    - {x: -0.5, y: -0.5, z: 0.5}
+    - {x: -0.5, y: 0.5, z: -0.5}
+    - {x: -0.5, y: 0.5, z: 0.5}
+    - {x: 0.5, y: -0.5, z: -0.5}
+    - {x: 0.5, y: -0.5, z: 0.5}
+    - {x: 0.5, y: 0.5, z: -0.5}
+    - {x: 0.5, y: 0.5, z: 0.5}
+    m_WorldPoints:
+    - {x: -0.5, y: -0.5, z: -0.5}
+    - {x: -0.5, y: -0.5, z: 0.5}
+    - {x: -0.5, y: 0.5, z: -0.5}
+    - {x: -0.5, y: 0.5, z: 0.5}
+    - {x: 0.5, y: -0.5, z: -0.5}
+    - {x: 0.5, y: -0.5, z: 0.5}
+    - {x: 0.5, y: 0.5, z: -0.5}
+    - {x: 0.5, y: 0.5, z: 0.5}
+    m_ScanAtRuntime: 1
+    m_ScanResolution: 1
+    m_ScanResolutionTmp: 1
+    m_PointCount: 8
+    m_IsScanned: 1
+    m_GizmoRescan: 0
+    m_GizmoDrawGrid: 0
+    m_PointReduction: 0
+    m_MaxReduction: 1
 --- !u!33 &8350630960708977138
 MeshFilter:
   m_ObjectHideFlags: 0

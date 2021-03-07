@@ -9,12 +9,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 828495537500791185}
+  - component: {fileID: -6521951722989201188}
   - component: {fileID: -850708468457899475}
   - component: {fileID: 828495537500791184}
   - component: {fileID: 828495537500791187}
+  - component: {fileID: 4789681359098544245}
   m_Layer: 6
   m_Name: Obstacle-Cone
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -31,10 +33,42 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2382858125322179871}
-  - {fileID: 363948474580901368}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-6521951722989201188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828495537500791186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c191b328ab2d5344a21508d5344fab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AddOneHotObservation: 1
+  m_Shape:
+    m_ScanResult:
+    - LocalPoints:
+      - {x: 0, y: 0.12500003, z: 0}
+      - {x: 0, y: 0.57500005, z: 0}
+    - LocalPoints:
+      - {x: 0, y: 0.35000002, z: 0}
+    m_LocalPoints:
+    - {x: 0, y: 0.12500003, z: 0}
+    - {x: 0, y: 0.57500005, z: 0}
+    m_WorldPoints: []
+    m_ScanAtRuntime: 0
+    m_ScanResolution: 0.45
+    m_ScanResolutionTmp: 0.45
+    m_PointCount: 2
+    m_IsScanned: 1
+    m_GizmoRescan: 0
+    m_GizmoDrawGrid: 0
+    m_PointReduction: 0
+    m_MaxReduction: 1
 --- !u!114 &-850708468457899475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,46 +109,15 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.42, y: 0.05, z: 0.42}
-  m_Center: {x: 0, y: 0.025, z: 0}
---- !u!1 &1046656429574737508
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 363948474580901368}
-  - component: {fileID: 4727274030282738163}
-  m_Layer: 6
-  m_Name: Tagged
-  m_TagString: Obstacle
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &363948474580901368
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1046656429574737508}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 828495537500791185}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &4727274030282738163
+  m_Size: {x: 0.42, y: 0.1, z: 0.42}
+  m_Center: {x: 0, y: 0.05, z: 0}
+--- !u!136 &4789681359098544245
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1046656429574737508}
+  m_GameObject: {fileID: 828495537500791186}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
