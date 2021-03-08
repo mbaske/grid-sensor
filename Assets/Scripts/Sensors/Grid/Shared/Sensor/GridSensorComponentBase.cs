@@ -6,7 +6,7 @@ namespace MBaske.Sensors.Grid
     /// <summary>
     /// Component that wraps a <see cref="GridSensor"/>.
     /// </summary>
-    public abstract class GridSensorComponentBase : SensorComponent
+    public class GridSensorComponentBase : SensorComponent
     {
         public GridSensor Sensor { get; private set; }
 
