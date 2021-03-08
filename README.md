@@ -108,7 +108,7 @@ Back in the sensor component inspector, select `Detection Type` > `Shape` to ena
 
 In case you're wondering why you need to drag and drop prefabs onto the inspector, rather than just using a tag list - managing custom observations is the reason for that. Since gameobjects need a DetectableGameObject script for generating shape points anyway, I decided to utilize it for handling custom observables as well.
 
-Note that sensor inspector settings include an `Observations List`. 3D detection always entails observing the distance to an object and doesn't need any further information. In that case, the list is initially empty. 2D detection on the other hand requires at least one observable to be defined. By default, this is a *"One-Hot"* value, which is added to the list automatically.
+Note that sensor inspector settings include an `Observations List`. 3D detection always entails observing the distance to an object and doesn't need any further information. In that case, the list is initially empty. 2D detection on the other hand requires at least one observable to be defined. By default, this is a *"One-Hot"* value, which is added to DetectableGameObject**2D**'s observations automatically.
 
 You can define your own observables by extending DetectableGameObject3D or DetectableGameObject2D. This allows for flexible control over agent observations. Override the `AddObservations` method like in this example:
 ```
