@@ -24,6 +24,7 @@ namespace MBaske.Sensors.Grid
 
         public virtual void Reset()
         {
+            m_Grid.Clear();
             m_CrntStackIndex = 0;
         }
 
