@@ -74,7 +74,7 @@ Select a detectable gameobject and enable *Gizmos* in scene view to scan its col
 DetectableGameObject3D and DetectableGameObject2D share the following inspector settings:
 
 ### Scan At Runtime
-Whether to scan the colliders at runtime. Enable this if runtime colliders differ from the prefab. The asteroid in the [Dogfight environment](#Example-Scenes) utilizes this option, because individual shapes are being randomized after instantiation. Otherwise, it's best to leave this unchecked, as the points get serialized and saved with the prefab, reducing the amount of work necessary at runtime.
+Whether to scan the colliders at runtime. Enable this option if runtime colliders differ from the prefab. The asteroid in the [Dogfight environment](#Example-Scenes) utilizes this option, because individual shapes are being randomized after instantiation. Otherwise, it's best to leave this unchecked, as the points get serialized and saved with the prefab, reducing the amount of work necessary at runtime.
 
 ### Scan Resolution
 The distance between scan points. Tweak this value to achieve a good compromise between point count (fewer is better) and collider shape representation.
