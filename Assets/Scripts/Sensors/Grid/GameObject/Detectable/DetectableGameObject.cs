@@ -24,6 +24,7 @@ namespace MBaske.Sensors.Grid
         {
             ResetShape();
             Deinitialize();
+            FindColliders();
         }
 
         private void OnDisable()

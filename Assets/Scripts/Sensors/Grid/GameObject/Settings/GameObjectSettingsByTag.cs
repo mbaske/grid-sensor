@@ -56,7 +56,7 @@ namespace MBaske.Sensors.Grid
                 }
                 else
                 {
-                    Debug.LogWarning($"Tag '{comp.Tag}' already added, detectable gameobjects must have distinct tags.");
+                    Debug.LogWarning($"Tag '{comp.Tag}' already added, tags must be distinct.");
                 }
             }
             else
@@ -91,7 +91,7 @@ namespace MBaske.Sensors.Grid
                     if (m_Tags.Contains(tag))
                     {
                         // Can occur if tag is changed on object that was already added.
-                        Debug.LogError($"Duplicate tag '{tag}' found, detectable gameobjects must have distinct tags.");
+                        Debug.LogError($"Duplicate tag '{tag}' found, tags must be distinct.");
                     }
                     else
                     {

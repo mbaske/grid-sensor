@@ -99,6 +99,7 @@ namespace MBaske.Sensors.Grid
                 m_AddDetectableObject = null;
             }
             m_Detectables.Update(GridType);
+            UpdateObservationShapeInfo();
         }
 
         
