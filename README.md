@@ -50,7 +50,7 @@ In order to add a detectable object type to the sensor, drag and drop your prefa
 
 ![Drag & Drop Prefab](Images/cone_drag.png)
 
-The object's tag now appears under "Detectables/Settings By Tag".
+The object's tag now appears under `Detectables > Settings By Tag`.
 
 ![Prefab Added](Images/cone_added.png)
 
