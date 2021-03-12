@@ -12,6 +12,7 @@ This is an experimental Grid Sensor for the [Unity Machine Learning Agents Toolk
     - [2D Specific](#2D-Specific-Settings)
 * [Differences from Eidos Grid Sensor](#Differences-from-Eidos-Grid-Sensor)
 * [Example Scenes](#Example-Scenes)  
+* [Utility Classes](#Utility-Classes)  
 <br/><br/>
 
 <!-- ![Overview](Sensor.png) -->
@@ -32,7 +33,7 @@ Detecting gameobjects is an obvious use case for extending the basic sensor comp
 * The closest point on its colliders.
 * A set of points roughly matching the object's shape.
 
-While position and closest point can be queried repeatedly, the shape points need to be generated and cached for better performance. This requires a DetectableGameObject component to be attached to detectable objects.  
+While position and closest point can be queried repeatedly, the shape points need to be generated and cached for better performance. This requires a DetectableGameObject component being attached to detectable objects.  
 
 I subsequently generalized the sensor for 2D and 3D detection, but kept the initial point based approach.  
 The corresponding sensor components are [GridSensorComponent3D](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent3D.cs) for spatial detection and [GridSensorComponent2D](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent2D.cs) for detecting objects located on a plane.
@@ -272,3 +273,18 @@ Agents control spaceships flying through an asteroid field, using discrete actio
 Combines 3D and 2D detection. The agent uses continuous actions for driving a car down a procedurally generated road. It detects roadside poles and various obstacles with two sensors. A long-range 3D sensor enables the agent to look ahead, while a short-range 2D sensor helps with evading obstacles. Again, the agent is rewarded for speed and penalized for collisions.
 
 For some reason, the DriverAgent prefab doesn't get imported correctly sometimes. Go to Assets/Examples/Driver/Agent/ and reimport DriverAgent, if the sensors are missing an observable tag (should be *"Pole"* and *"Obstacle"* for both sensors).
+<br/><br/>
+
+## Utility Classes
+
+### GridSensorGUI
+
+Add a [GridSensorGUI](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorGUI.cs) component for drawing the observed grid into a GUI texture. See Driver example, DriverAgent/Car/LongRangeSensor and DriverAgent/Car/ShortRangeSensor.
+
+### GridSensorUpdater
+
+Add a [GridSensorUpdater](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorUpdater.cs) component for creating and updating a standalone sensor. This is meant for testing a sensor not associated with an agent. See Dogfight example, Main Camera/FrontSensor and Main Camera/LongRangeSensor.
+
+### GridSensorComponentProxy
+
+The [GridSensorComponentProxy](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorComponentProxy.cs) stands in for a grid sensor component to whom it forwards method calls. This can be useful if the sensor must be detached from the agent's gameobject. See DriverProxyTest example, DriverAgentProxyTest.
