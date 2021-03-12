@@ -12,7 +12,7 @@ This is an experimental Grid Sensor for the [Unity Machine Learning Agents Toolk
     - [2D Specific](#2D-Specific-Settings)
 * [Differences from Eidos Grid Sensor](#Differences-from-Eidos-Grid-Sensor)
 * [Example Scenes](#Example-Scenes)  
-* [Utility Classes](#Utility-Classes)  
+* [Utility Components](#Utility-Components)  
 <br/><br/>
 
 <!-- ![Overview](Sensor.png) -->
@@ -275,7 +275,7 @@ Combines 3D and 2D detection. The agent uses continuous actions for driving a ca
 For some reason, the DriverAgent prefab doesn't get imported correctly sometimes. Go to Assets/Examples/Driver/Agent/ and reimport DriverAgent, if the sensors are missing an observable tag (should be *"Pole"* and *"Obstacle"* for both sensors).
 <br/><br/>
 
-## Utility Classes
+## Utility Components
 
 ### GridSensorGUI
 
