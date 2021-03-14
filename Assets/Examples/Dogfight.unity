@@ -1079,6 +1079,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Prefabs:
   - {fileID: 6917907494927143172, guid: 2b56e02cbd4cebb4fa6e9d73a920d67f, type: 3}
+  m_Capacities: 10000000
 --- !u!1 &1524215202
 GameObject:
   m_ObjectHideFlags: 0

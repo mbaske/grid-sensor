@@ -77,8 +77,8 @@ namespace MBaske.Driver
                 if (z % 2 == 0)
                 {
                     // Poles.
-                    m_Obstacles.Push(m_Pool.Spawn(3, tf.position - tf.right * c_PoleDistance, tf.rotation));
-                    m_Obstacles.Push(m_Pool.Spawn(3, tf.position + tf.right * c_PoleDistance, tf.rotation));
+                    m_Obstacles.Push(m_Pool.Spawn(tf.position - tf.right * c_PoleDistance, tf.rotation, 3));
+                    m_Obstacles.Push(m_Pool.Spawn(tf.position + tf.right * c_PoleDistance, tf.rotation, 3));
                 }
 
                 switch (m_ObstacleType)
@@ -88,16 +88,16 @@ namespace MBaske.Driver
                         if (x == z)
                         {
                             // Single roadblock.
-                            m_Obstacles.Push(m_Pool.Spawn(0, ObstacleSpawnPos(tf, x * side), tf.rotation));
+                            m_Obstacles.Push(m_Pool.Spawn(ObstacleSpawnPos(tf, x * side), tf.rotation, 0));
                         }
                         break;
                     case ObstacleType.Barrel:
                         x = (c_Length - z) * side;
-                        m_Obstacles.Push(m_Pool.Spawn(1, ObstacleSpawnPos(tf, x), tf.rotation));
+                        m_Obstacles.Push(m_Pool.Spawn(ObstacleSpawnPos(tf, x), tf.rotation, 1));
                         break;
                     case ObstacleType.Cone:
                         x = (c_Length - z) * side;
-                        m_Obstacles.Push(m_Pool.Spawn(2, ObstacleSpawnPos(tf, x), tf.rotation));
+                        m_Obstacles.Push(m_Pool.Spawn(ObstacleSpawnPos(tf, x), tf.rotation, 2));
                         break;
                 }
             }

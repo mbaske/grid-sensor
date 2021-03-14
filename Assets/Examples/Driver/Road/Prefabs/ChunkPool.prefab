@@ -45,3 +45,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Prefabs:
   - {fileID: 1777152353675207129, guid: f390eff1cb8e7df4285d32d16d0ae403, type: 3}
+  m_Capacities: 14000000
