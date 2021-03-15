@@ -16,14 +16,25 @@ namespace MBaske
 
         private void OnValidate()
         {
-            int n = m_Prefabs.Length;
-            if (n > m_Capacities.Count)
+            if (m_Prefabs != null)
             {
-                m_Capacities.Add(64);
-            }
-            for (int i = m_Capacities.Count - 1; i >= n; i--)
-            {
-                m_Capacities.RemoveAt(i);
+                int nP = m_Prefabs.Length;
+                int nC = m_Capacities.Count;
+
+                if (nP > nC)
+                {
+                    for (int i = nC; i < nP; i++)
+                    {
+                        m_Capacities.Add(64);
+                    }
+                }
+                else if (nC > nP)
+                {
+                    for (int i = nC; i > nP; i--)
+                    {
+                        m_Capacities.RemoveAt(m_Capacities.Count - 1);
+                    }
+                }
             }
         }
 
