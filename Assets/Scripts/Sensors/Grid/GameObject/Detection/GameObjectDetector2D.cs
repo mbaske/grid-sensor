@@ -2,13 +2,18 @@ using UnityEngine;
 
 namespace MBaske.Sensors.Grid
 {
+    public enum Detector2DRotationType
+    {
+        AgentY, AgentXYZ, None
+    }
+
     public class GameObjectDetector2D : GameObjectDetector
     {
-        public bool Rotate
+        public Detector2DRotationType RotationType
         {
-            set { m_Rotate = value; }
+            set { m_RotationType = value; }
         }
-        private bool m_Rotate;
+        private Detector2DRotationType m_RotationType;
 
         public Quaternion WorldRotation
         {
@@ -33,9 +38,17 @@ namespace MBaske.Sensors.Grid
         {
             Result.Clear();
 
-            Quaternion rot = m_Rotate 
-                ? Quaternion.AngleAxis(m_Transform.eulerAngles.y, Vector3.up) 
-                : m_WorldRotation;
+            Quaternion rot = m_WorldRotation;
+
+            switch (m_RotationType)
+            {
+                case Detector2DRotationType.AgentY:
+                    rot = Quaternion.AngleAxis(m_Transform.eulerAngles.y, Vector3.up);
+                    break;
+                case Detector2DRotationType.AgentXYZ:
+                    rot = m_Transform.rotation;
+                    break;
+            }
 
             Vector3 pos = m_Transform.position;
             Matrix4x4 worldToLocalMatrix = Matrix4x4.TRS(pos, rot, Vector3.one).inverse;

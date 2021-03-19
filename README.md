@@ -220,9 +220,12 @@ How to normalize object distances. 1 for linear normalization. Set value to < 1 
 
 ![Overview 2D](Images/overview_2D.png)
 
-### Rotate
+### Rotation Type
 
-Whether to Y-rotate detection bounds with the sensor transform. If disabled, bounds are always aligned with the world forward axis. 
+Whether to rotate the sensor with the agent's transform.
+* `Agent Y` - Rotate around Y-axis only, sensor is aligned with agent forward.
+* `Agent XYZ` - Rotate around all axes, sensor is aligned with agent rotation.
+* `None` - Ignore agent rotation, sensor is aligned with world forward axis.
 
 ### Cell Size
 
@@ -240,9 +243,9 @@ Actual detection bounds size of the grid sensor. Values are rounded to match `Ce
 
 Unrounded detection bounds used for editing, visualized by the white box in scene view (Gizmos). Use gizmo handles to move and change size.  
 Available key commands in scene GUI:  
-* S - Snap to cell size  
-* C - Center on X-axis  
-* Shift+C - Center on all axes
+* S - Snap to cell size.
+* C - Center on X-axis.
+* Shift+C - Center on all axes.
 
 ### Offset
 

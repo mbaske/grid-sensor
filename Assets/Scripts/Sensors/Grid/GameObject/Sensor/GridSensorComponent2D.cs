@@ -10,21 +10,13 @@ namespace MBaske.Sensors.Grid
         /// <summary>
         /// Whether to Y-rotate detection bounds together with the sensor transform.
         /// </summary>
-        public bool Rotate
+        public Detector2DRotationType RotationType
         {
-            get { return m_Rotate; }
-            set { m_Rotate = value; }
+            get { return m_RotationType; }
+            set { m_RotationType = value; }
         }
-        [SerializeField, Tooltip("Whether to Y-rotate detection bounds with the sensor transform." +
-            " If disabled, bounds are always aligned with world forward axis.")]
-        private bool m_Rotate = true;
-
-        public Quaternion Rotation
-        {
-            get { return m_Rotate
-                    ? Quaternion.AngleAxis(transform.eulerAngles.y, Vector3.up) 
-                    : m_WorldRotation; }
-        }
+        [SerializeField, Tooltip("Sensor rotation type.")]
+        private Detector2DRotationType m_RotationType = Detector2DRotationType.AgentY;
         private Quaternion m_WorldRotation = Quaternion.LookRotation(Vector3.forward);
 
         /// <summary>
@@ -125,6 +117,16 @@ namespace MBaske.Sensors.Grid
             m_DetectionBounds.center = c;
         }
 
+        public Quaternion GetRotation()
+        {
+            return m_RotationType switch
+            {
+                Detector2DRotationType.AgentY => Quaternion.AngleAxis(transform.eulerAngles.y, Vector3.up),
+                Detector2DRotationType.AgentXYZ => transform.rotation,
+                _ => m_WorldRotation,
+            };
+        }
+
         // Called by OnValidate after inspector update.
         protected override void UpdateSettings()
         {
@@ -140,7 +142,7 @@ namespace MBaske.Sensors.Grid
                 Settings = m_Detectables,
                 SensorTransform = transform,
                 SensorOwner = GetComponentInParent<DetectableGameObject>(),
-                Rotate = m_Rotate,
+                RotationType = m_RotationType,
                 WorldRotation = m_WorldRotation,
                 Constraint = new Constraint2D()
                 {

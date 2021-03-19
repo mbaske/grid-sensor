@@ -76,7 +76,7 @@ namespace MBaske.Sensors.Grid
         private void DrawHandles()
         {
             float cellSize = m_Comp.CellSize;
-            Matrix4x4 matrix = Matrix4x4.TRS(m_Comp.transform.position, m_Comp.Rotation, Vector3.one);
+            Matrix4x4 matrix = Matrix4x4.TRS(m_Comp.transform.position, m_Comp.GetRotation(), Vector3.one);
 
             using (new Handles.DrawingScope(matrix))
             {
