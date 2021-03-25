@@ -275,7 +275,7 @@ Agents control spaceships flying through an asteroid field, using discrete actio
 
 Combines 3D and 2D detection. The agent uses continuous actions for driving a car down a procedurally generated road. It detects roadside poles and various obstacles with two sensors. A long-range 3D sensor enables the agent to look ahead, while a short-range 2D sensor helps with evading obstacles. Again, the agent is rewarded for speed and penalized for collisions.
 
-For some reason, the DriverAgent prefab doesn't get imported correctly sometimes. Go to Assets/Examples/Driver/Agent/ and reimport DriverAgent, if the sensors are missing an observable tag (should be *"Pole"* and *"Obstacle"* for both sensors).
+**For some reason, the serialized sensor settings might not get imported correctly with the prefabs when opening the project, causing some detectable tags to be missing. Go to Assets/Examples/ReImport/ and reimport *CarWithSensors* and *SpaceshipWithSensors*.** ([Possibly related issue](https://forum.unity.com/threads/data-corruption-with-prefab-import-with-new-prefab-workflow-still.660037/))
 <br/><br/>
 
 ## Utility Components
