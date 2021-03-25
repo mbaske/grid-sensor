@@ -108,10 +108,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 635699020581639618}
     m_Modifications:
-    - target: {fileID: 1249751500682015541, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
-      propertyPath: m_PointCount
-      value: 62
-      objectReference: {fileID: 0}
     - target: {fileID: 2705286137011316497, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -159,6 +155,34 @@ PrefabInstance:
     - target: {fileID: 3368916564331560363, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
       propertyPath: m_Name
       value: SpaceshipWithSensors
+      objectReference: {fileID: 0}
+    - target: {fileID: 3723382926666400401, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
+      propertyPath: m_ObservationShape
+      value: 30 (height) x 45 (width) x 1 (channels)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3723382926666400401, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
+      propertyPath: m_Detectables.m_SettingsByTag.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3723382926666400401, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
+      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].Tag
+      value: Asteroid
+      objectReference: {fileID: 0}
+    - target: {fileID: 3723382926666400401, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
+      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3723382926666400401, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
+      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].Detectable
+      value: 
+      objectReference: {fileID: 2138244746495942680, guid: 86ad3fd1eec2f224fba2164824decdcd, type: 3}
+    - target: {fileID: 3723382926666400401, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
+      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].DetectionType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3723382926666400401, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
+      propertyPath: m_Detectables.m_SettingsByTag.Array.data[0].ShapeModifier
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5633af3beac34e4db0a34aa5398ae99, type: 3}
