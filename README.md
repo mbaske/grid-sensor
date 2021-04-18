@@ -1,6 +1,6 @@
 
 # Grid Sensor for Unity ML-Agents
-This is an experimental Grid Sensor for the [Unity Machine Learning Agents Toolkit](https://github.com/Unity-Technologies/ml-agents). 
+This is an experimental Grid Sensor for the [Unity Machine Learning Agents Toolkit](https://github.com/Unity-Technologies/ml-agents). It is compatible with [v1.9.0 / release 15](https://github.com/Unity-Technologies/ml-agents/releases/tag/release_15).
 
 * [Concept](#Concept)  
 * [Game Object Detection](#Game-Object-Detection)  
@@ -252,15 +252,14 @@ Available key commands in scene GUI:
 Detection offset from sensor transform position.
 <br/><br/>
 
-## Differences from Eidos Grid Sensor
+## Differences from Eidos Grid Sensor (ML-Agents v1.9.0)
 
 [Eidos' Grid Sensor](https://blogs.unity3d.com/2020/11/20/how-eidos-montreal-created-grid-sensors-to-improve-observations-for-training-agents/) was designed to detect game objects on a 2D plane. To that end, it invokes physics overlap calls for every grid cell, parses the found colliders and generates the resulting grid entries. This is a straight forward approach which requires far less code than my implementation with all the abstraction and generalization I was aiming for.   
 Comparing it to my 2D sensor variant, here are the advantages of each sensor the way I see them:
 * The Eidos sensor is easier to set up. Unless you want custom observable values, objects don't need any particular scripts attached for being detectable. 
 * Its Gizmo drawing is more informative than that of my sensor, insofar as it directly visualizes how object detection translates to grid cells in scene view. Since detection and encoding are conceptually separate runtime processes for my sensor, you'll need to use the [GridSensorGUI](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorGUI.cs) component for displaying its grid output.
 * My sensor is considerably faster for large or multiple grids. This is because of the individual overlap calls the Eidos sensor does for every cell - they add up. By contrast, my sensor performs a single overlap call per update step, loops through the detected colliders, retrieves their associated points and transforms them into the sensor's frame of reference. An A/B comparison in the [Food Collector Environment](https://github.com/Unity-Technologies/ml-agents/blob/main/docs/Learning-Environment-Examples.md#food-collector) showed that CPU training time can be reduced by one third using my sensor (running eight executables). In-editor Burst inference produced 2x to 3x higher framerates.
-* Custom observations can be added easily with my sensor as [described above](#Custom-Observations). Although Eidos' sensor supports custom values too, they aren't as comfortable to implement, since that requires overriding the sensor's [GetObjectData](https://github.com/Unity-Technologies/ml-agents/blob/main/com.unity.ml-agents.extensions/Runtime/Sensors/GridSensor.cs#L437) method as well as providing values on gameobjects themselves.
-* Tags and layer masks are handled automatically by my sensor. Detectable tags are set as string literals for Eidos' sensor, which is more prone to errors.
+* Custom observations can be added easily with my sensor as [described above](#Custom-Observations). Although Eidos' sensor supports custom values too, they aren't as comfortable to implement, since that requires overriding the sensor's GetObjectData method as well as providing values on gameobjects themselves.
 
 Obviously, this is just my subjective take on the matter. You might find other things you like or dislike about the sensors.
 <br/><br/>
