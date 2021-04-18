@@ -11,7 +11,7 @@ It is compatible with [v1.9.0 / release 15](https://github.com/Unity-Technologie
 * [Sensor Settings](#Sensor-Settings)
     - [3D Specific](#3D-Specific-Settings)
     - [2D Specific](#2D-Specific-Settings)
-* [Differences from Eidos Grid Sensor](#Differences-from-Eidos-Grid-Sensor)
+* [Differences from Eidos Grid Sensor](#Differences-from-Eidos-Grid-Sensor-(ML-Agents-v1.9.0))
 * [Example Scenes](#Example-Scenes)  
 * [Utility Components](#Utility-Components)  
 <br/><br/>
