@@ -8,9 +8,16 @@ using System.Collections.Generic;
 
 namespace MBaske.Dogfight
 {
+    /// <summary>
+    /// Agent that pilots a <see cref="Spaceship>"/> and has to 
+    /// follow other agents while avoiding <see cref="Asteroid"/>s.
+    /// </summary>
     public class PilotAgent : Agent, IBulletOwner
     {
+        /// <inheritdoc/>
         public Vector3 GunPosition { get; private set; }
+
+        /// <inheritdoc/>
         public Vector3 GunDirection { get; private set; }
 
         private Spaceship m_Ship;
@@ -46,20 +53,32 @@ namespace MBaske.Dogfight
         private int m_HitScoreCount;
 
         private IList<GameObject> m_Targets;
-        private static string m_TargetTag;
+        // Cache targets, so we don't need to repeatedly get PilotAgent component.
         private static IDictionary<GameObject, PilotAgent> s_TargetCache;
+        private static string m_TargetTag; // same for all.
+        
 
-
+        /// <inheritdoc/>
         public override void Initialize()
         {
-            m_Asteroids = FindObjectOfType<AsteroidField>();
             m_Bullets = FindObjectOfType<BulletPool>();
             m_Stats = Academy.Instance.StatsRecorder;
 
             m_Ship = GetComponentInChildren<Spaceship>();
             m_Ship.BulletHitEvent += OnBulletHitSuffered;
             m_Ship.CollisionEvent += OnCollision;
-            m_Ship.EnvironmentRadius = m_Asteroids ? m_Asteroids.FieldRadius : 100;
+
+            m_Asteroids = FindObjectOfType<AsteroidField>();
+            if (m_Asteroids != null)
+            {
+                m_Asteroids.ScansCompleteEvent += OnAsteroidsScanned;
+                m_Ship.EnvironmentRadius = m_Asteroids.FieldRadius;
+            }
+            else
+            {
+                m_Ship.EnvironmentRadius = 100; // TBD
+                AddDecisionRequester();
+            }
 
             s_TargetCache ??= CreateTargetCache();
             m_TargetTag ??= m_Ship.tag;
@@ -69,6 +88,20 @@ namespace MBaske.Dogfight
             m_TargetLockDistanceSqr = m_TargetLockDistance * m_TargetLockDistance;
         }
 
+        private void OnAsteroidsScanned()
+        {
+            m_Asteroids.ScansCompleteEvent -= OnAsteroidsScanned;
+            AddDecisionRequester();
+        }
+
+        private void AddDecisionRequester()
+        {
+            var req = gameObject.AddComponent<DecisionRequester>();
+            req.DecisionPeriod = 4;
+            req.TakeActionsBetweenDecisions = true;
+        }
+
+        /// <inheritdoc/>
         public override void OnEpisodeBegin()
         {
             m_Asteroids?.OnEpisodeBegin();
@@ -76,6 +109,7 @@ namespace MBaske.Dogfight
             m_HitScoreCount = 0;
         }
 
+        /// <inheritdoc/>
         public override void CollectObservations(VectorSensor sensor)
         {
             sensor.AddObservation(m_Ship.Throttle);
@@ -90,6 +124,7 @@ namespace MBaske.Dogfight
             Vector3 fwd = m_Ship.transform.forward;
             m_Targets.Clear();
 
+            // Find targets in vicinity.
             foreach (var target in m_SensorComponent.GetDetectedGameObjects(m_TargetTag))
             {
                 Vector3 delta = target.transform.position - pos;
@@ -101,6 +136,7 @@ namespace MBaske.Dogfight
             }
         }
 
+        /// <inheritdoc/>
         public override void OnActionReceived(ActionBuffers actionBuffers)
         {
             var actions = actionBuffers.DiscreteActions;
@@ -118,6 +154,7 @@ namespace MBaske.Dogfight
             }
         }
 
+        /// <inheritdoc/>
         public override void Heuristic(in ActionBuffers actionsOut)
         {
             var actions = actionsOut.DiscreteActions;
@@ -170,20 +207,23 @@ namespace MBaske.Dogfight
             m_CollisionCount++;
         }
 
-        // Is invoked only if bullet collider is trigger.
-        // Otherwise, OnCollision() registers bullet hits.
+        /// <summary>
+        /// Is invoked only if <see cref="Bullet"/> collider is trigger.
+        /// Otherwise, <see cref="OnCollision"/> registers bullet hits.
+        /// </summary>
         public void OnBulletHitSuffered()
         {
             AddReward(-1); 
         }
 
+        /// <inheritdoc/>
         public void OnBulletHitScored()
         {
             AddReward(1);
             m_HitScoreCount++;
         }
 
-        private void OnDestroy()
+        private void OnApplicationQuit()
         {
             m_Ship.BulletHitEvent -= OnBulletHitSuffered;
             m_Ship.CollisionEvent -= OnCollision;

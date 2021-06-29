@@ -2,10 +2,14 @@ using UnityEngine;
 
 namespace MBaske.Driver
 {
+    /// <summary>
+    /// <see cref="Poolable"/> obstacle: pole, cone, barrel or road block.
+    /// </summary>
     public class Obstacle : Poolable
     {
         private Rigidbody m_Rigidbody;
 
+        /// <inheritdoc/>
         public override void OnSpawn()
         {
             m_Rigidbody = GetComponent<Rigidbody>();

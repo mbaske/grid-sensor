@@ -7,6 +7,9 @@ using MBaske.MLUtil;
 
 namespace MBaske.Driver
 {
+    /// <summary>
+    /// Agent that controls a car and has to avoid obstacles.
+    /// </summary>
     public class DriverAgent : Agent
     {
         private Road m_Road;
@@ -15,17 +18,18 @@ namespace MBaske.Driver
         private StatsRecorder m_Stats;
 
         [SerializeField]
-        [Tooltip("Timeout in seconds after which episode ends if agent doesn't move.")]
-        private float m_Timeout = 5;
+        [Tooltip("Timeout in seconds after which episode ends if agent doesn't move. " +
+            "Set to 0 for disabling timeout.")]
+        [Min(0)] private float m_Timeout = 5;
         private float m_Time;
         [SerializeField]
         [Tooltip("Step interval for writing stats to Tensorboard.")]
-        private int m_StatsInterval = 120;
+        [Min(50)] private int m_StatsInterval = 120;
         private int m_CollisionCount;
 
         private const int c_CheckStateInterval = 20;
-        
 
+        /// <inheritdoc/>
         public override void Initialize()
         {
             m_Stats = Academy.Instance.StatsRecorder;
@@ -37,6 +41,7 @@ namespace MBaske.Driver
             m_Car.Initialize();
         }
 
+        /// <inheritdoc/>
         public override void OnEpisodeBegin()
         {
             m_Road.ManagedReset();
@@ -51,6 +56,7 @@ namespace MBaske.Driver
             m_Time = Time.time;
         }
 
+        /// <inheritdoc/>
         public override void CollectObservations(VectorSensor sensor)
         {
             sensor.AddObservation(m_Car.NormSteer);
@@ -58,6 +64,7 @@ namespace MBaske.Driver
             sensor.AddObservation(Normalization.Sigmoid(m_Car.LocalVelocity));
         }
 
+        /// <inheritdoc/>
         public override void OnActionReceived(ActionBuffers actionBuffers)
         {
             var actions = actionBuffers.ContinuousActions;
@@ -78,6 +85,7 @@ namespace MBaske.Driver
             }
         }
 
+        /// <inheritdoc/>
         public override void Heuristic(in ActionBuffers actionsOut)
         {
             var actions = actionsOut.ContinuousActions;
@@ -88,16 +96,18 @@ namespace MBaske.Driver
 
         private void CheckState()
         {
-            if (!m_Car.IsGrounded() || Time.time - m_Time > m_Timeout)
+            if (!m_Car.IsGrounded() || (m_Timeout > 0 && Time.time - m_Time > m_Timeout))
             {
+                // Agent veered off the road or
+                // stayed on the same chunk for too long.
                 EndEpisode();
             }
             else if (m_Car.IsMoving())
             {
                 m_Time = Time.time;
 
-                // TBD chunk length = 15m, replace at 30m distance.
-                if ((m_Car.transform.position - m_ChunkPos).sqrMagnitude > 900)
+                // TBD chunk length = 16m, replace at 32m distance.
+                if ((m_Car.transform.position - m_ChunkPos).sqrMagnitude > 1024)
                 {
                     m_Road.ReplaceFirstChunk();
                     m_ChunkPos = m_Road.FirstChunkTF.position;
@@ -111,7 +121,7 @@ namespace MBaske.Driver
             m_CollisionCount++;
         }
 
-        private void OnDestroy()
+        private void OnApplicationQuit()
         {
             m_Car.CollisionEvent -= OnCollision;
         }

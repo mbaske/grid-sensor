@@ -2,20 +2,35 @@
 
 namespace MBaske.MLUtil
 {
+    /// <summary>
+    /// Static utility class for normalizing observations.
+    /// </summary>
     public static class Normalization
     {
-        public static float Sigmoid(float val, float scale = 1f)
+        /// <summary>
+        /// Sigmoid: value * scale / (1 + abs(value * scale))
+        /// </summary>
+        /// <param name="value">Input value</param>
+        /// <param name="scale">Input scale</param>
+        /// <returns>Normalized value</returns>
+        public static float Sigmoid(float value, float scale = 1f)
         {
-            val *= scale;
-            return val / (1f + Mathf.Abs(val));
+            value *= scale;
+            return value / (1f + Mathf.Abs(value));
         }
 
-        public static Vector3 Sigmoid(Vector3 v3, float scale = 1f)
+        /// <summary>
+        /// Sigmoid: value * scale / (1 + abs(value * scale))
+        /// </summary>
+        /// <param name="vector">Input vector</param>
+        /// <param name="scale">Input scale</param>
+        /// <returns>Normalized vector</returns>
+        public static Vector3 Sigmoid(Vector3 vector, float scale = 1f)
         {
-            v3.x = Sigmoid(v3.x, scale);
-            v3.y = Sigmoid(v3.y, scale);
-            v3.z = Sigmoid(v3.z, scale);
-            return v3;
+            vector.x = Sigmoid(vector.x, scale);
+            vector.y = Sigmoid(vector.y, scale);
+            vector.z = Sigmoid(vector.z, scale);
+            return vector;
         }
     }
 }

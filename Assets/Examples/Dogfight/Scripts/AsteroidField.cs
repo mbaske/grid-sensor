@@ -1,11 +1,25 @@
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
+using NaughtyAttributes;
+using MBaske.Sensors.Grid;
+using Random = UnityEngine.Random;
 
 namespace MBaske.Dogfight
 {
+    /// <summary>
+    /// Generates a bunch of random <see cref="Asteroid"/>s and 
+    /// finds spawn positions for the <see cref="Spaceship"/>s.
+    /// </summary>
     public class AsteroidField : MonoBehaviour
     {
+        /// <summary>
+        /// Optional: Invoked after all shape scans are done.
+        /// </summary>
+        public event Action ScansCompleteEvent;
+        private bool m_OptScansComplete; // flag
+
         public float FieldRadius = 100;
         private float m_RadiusSqr;
         [SerializeField, Range(10, 50)]
@@ -49,17 +63,19 @@ namespace MBaske.Dogfight
         {
             ClampProperties();
             Initialize();
-            Randomize();
+            RandomizePositions();
         }
 
-        // Called by each agent.
-        // Randomize when all agents are ready.
+        /// <summary>
+        /// Invoked by <see cref="PilotAgent"/>.
+        /// Randomizes asteroid field when all agents are ready.
+        /// </summary>
         public void OnEpisodeBegin()
         {
             if (++m_ShipCount == m_Ships.Count)
             {
                 m_ShipCount = 0;
-                Randomize();
+                RandomizePositions();
             }
         }
 
@@ -111,14 +127,14 @@ namespace MBaske.Dogfight
             }
         }
 
-        private void Randomize()
+        private void RandomizePositions()
         {
             m_AsteroidPositions = Shuffle(m_AsteroidPositions);
             for (int i = 0; i < m_Asteroids.Count; i++)
             {
                 m_Asteroids[i].LocalPosition = m_AsteroidPositions[i];
-                m_Asteroids[i].WorldVelocity = Random.insideUnitSphere * m_MaxVelocity;
-                m_Asteroids[i].WorldSpin = Random.insideUnitSphere * m_MaxSpin;
+                m_Asteroids[i].WorldVelocity = Vector3.zero;
+                m_Asteroids[i].WorldSpin = Vector3.zero;
             }
 
             m_ShipPositions = Shuffle(m_ShipPositions);
@@ -128,6 +144,51 @@ namespace MBaske.Dogfight
             }
 
             m_UpdateIndex = 0;
+
+
+            // Optional: Scan asteroids AFTER they're spread out,
+            // but BEFORE moving them around.
+
+            if (!m_OptScansComplete)
+            {
+                foreach (var asteroid in m_Asteroids)
+                {
+                    if (asteroid.TryGetComponent(out DetectableGameObject obj))
+                    {
+                        obj.ScanShapeRuntime();
+                    }
+                    else
+                    {
+                        m_OptScansComplete = true;
+                        break;
+                    }
+                }
+            }
+
+            if (m_OptScansComplete)
+            {
+                RandomizeVelocities();
+            }
+            else
+            {
+                new InvokeOnShapeScansComplete(this, OnShapeScansComplete);
+            }
+        }
+
+        private void OnShapeScansComplete()
+        {
+            m_OptScansComplete = true;
+            ScansCompleteEvent?.Invoke();
+            RandomizeVelocities();
+        }
+
+        private void RandomizeVelocities()
+        {
+            foreach (var asteroid in m_Asteroids)
+            {
+                asteroid.WorldVelocity = Random.insideUnitSphere * m_MaxVelocity;
+                asteroid.WorldSpin = Random.insideUnitSphere * m_MaxSpin;
+            }
         }
 
         private IEnumerable<Vector3> AsteroidPositions()

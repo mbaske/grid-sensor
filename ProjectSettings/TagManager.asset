@@ -4,13 +4,17 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - TargetA
-  - TargetB
-  - TargetC
   - Spaceship
   - Asteroid
   - Pole
   - Obstacle
+  - ground
+  - agent
+  - wall
+  - food
+  - badFood
+  - frozenAgent
+  - Barrel
   layers:
   - Default
   - TransparentFX

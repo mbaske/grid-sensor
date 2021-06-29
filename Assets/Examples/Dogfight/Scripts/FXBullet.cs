@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace MBaske.Dogfight
 {
+    /// <summary>
+    /// Extends <see cref="Bullet"/>, ads a trail to it.
+    /// </summary>
     public class FXBullet : Bullet
     {
         private TrailRenderer m_Trail;
@@ -14,6 +17,7 @@ namespace MBaske.Dogfight
             m_Trail.enabled = false;
         }
 
+        /// <inheritdoc/>
         public override void OnSpawn()
         {
             base.OnSpawn();

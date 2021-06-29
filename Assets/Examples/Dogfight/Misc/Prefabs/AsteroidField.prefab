@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4794761302854553459}
-  - component: {fileID: 4794761302854553458}
+  - component: {fileID: 4251418239287832939}
   m_Layer: 0
   m_Name: AsteroidField
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4794761302854553458
+--- !u!114 &4251418239287832939
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,16 +40,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 4794761302854553460}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3287cdae43781d9479742d13e19480d2, type: 3}
+  m_Script: {fileID: 11500000, guid: 585b3f1939f96ae449f18d4945ddc944, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   FieldRadius: 100
   m_AsteroidSpacing: 22
-  m_AsteroidCount: 389
+  m_AsteroidCount: 4169
   m_MaxVelocity: 5
   m_MaxSpin: 2
   m_MinSize: 4
-  m_MaxSize: 8
+  m_MaxSize: 5
   m_MaxDeform: 0.75
   m_Noise: 1
-  m_AsteroidPrefab: {fileID: 8350630960708977136, guid: 86ad3fd1eec2f224fba2164824decdcd, type: 3}
+  m_AsteroidPrefab: {fileID: 2374081634917869384, guid: 86ad3fd1eec2f224fba2164824decdcd, type: 3}

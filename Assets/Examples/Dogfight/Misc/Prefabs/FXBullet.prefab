@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 6917907494927143193}
   - component: {fileID: 6917907494927143192}
   - component: {fileID: 6917907494927143175}
-  - component: {fileID: 6917907494927143172}
   - component: {fileID: 6917907494927143179}
+  - component: {fileID: 4424777233553983245}
   m_Layer: 8
   m_Name: FXBullet
   m_TagString: Untagged
@@ -55,6 +55,7 @@ MeshRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -93,7 +94,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6917907494927143173}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
@@ -114,21 +115,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!114 &6917907494927143172
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6917907494927143173}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be9ee8c1bb097904a97167b7f32c725a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Lifetime: 0.5
-  m_Force: 100
-  m_TargetTag: Spaceship
 --- !u!96 &6917907494927143179
 TrailRenderer:
   serializedVersion: 2
@@ -141,6 +127,7 @@ TrailRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
@@ -236,3 +223,18 @@ TrailRenderer:
   m_MinVertexDistance: 1
   m_Autodestruct: 0
   m_Emitting: 1
+--- !u!114 &4424777233553983245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6917907494927143173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5aa26ada8ce2c3458b24dc11dd69f40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Lifetime: 0.5
+  m_Force: 100
+  m_TargetTag: Spaceship

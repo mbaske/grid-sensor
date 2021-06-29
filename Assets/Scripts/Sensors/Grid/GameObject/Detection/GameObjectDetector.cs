@@ -3,113 +3,177 @@ using UnityEngine;
 
 namespace MBaske.Sensors.Grid
 {
-    public abstract class GameObjectDetector : Detector
+    /// <summary>
+    /// Type of the detector space, box (2D) or sphere (3D).
+    /// </summary>
+    public enum DetectorSpaceType
     {
-        public int BufferSize
+        Box, Sphere
+    }
+
+    /// <summary>
+    /// Abstract base class for detecting gameobjects.
+    /// </summary>
+    public abstract class GameObjectDetector : IDetector
+    {
+        public DetectionResult Result
+        {
+            get { return m_Result; }
+            set { m_Result = value; }
+        }
+        protected DetectionResult m_Result;
+
+        /// <summary>
+        /// The maximum number of colliders the detector can detect at once.
+        /// </summary>
+        public int ColliderBufferSize
         {
             set 
-            {
-                m_BufferSize = value;
-                m_Buffer = new Collider[value]; 
+            { 
+                m_ColliderBufferSize = value;
+                m_ColliderBuffer = new Collider[m_ColliderBufferSize];
             }
         }
-        protected Collider[] m_Buffer;
-        protected int m_BufferSize;
+        protected int m_ColliderBufferSize;
 
+        /// <summary>
+        /// Whether to clear the <see cref="DetectableGameObject"/> 
+        /// cache on sensor reset at the end of each episode.
+        /// </summary>
         public bool ClearCacheOnReset
         {
             set { m_ClearCacheOnReset = value; }
         }
         protected bool m_ClearCacheOnReset;
 
+        /// <summary>
+        /// The sensor component's transform.
+        /// </summary>
         public Transform SensorTransform
         {
             set { m_Transform = value; }
         }
         protected Transform m_Transform;
 
-        // Optional.
+        /// <summary>
+        /// Optional <see cref="DetectableGameObject"/> attached or 
+        /// parented to the sensor's transform. This object will be  
+        /// excluded from detection.
+        /// </summary>
         public DetectableGameObject SensorOwner
         {
             set { m_Owner = value; }
         }
         protected DetectableGameObject m_Owner;
 
-        public GameObjectSettingsByTag Settings
+        /// <summary>
+        /// The <see cref="GameObjectSettingsMeta"/> to use for detection.
+        /// </summary>
+        public GameObjectSettingsMeta Settings
         {
             set 
             {
                 m_Settings = value;
-                m_LayerMask = value.LayerMask; 
-                Result = new DetectionResult(value.DetectableTags, m_BufferSize);
+                m_LayerMask = value.LayerMask;
             }
         }
-        protected GameObjectSettingsByTag m_Settings;
-        protected int m_LayerMask;
-        // Capacity?
-        private readonly List<Vector3> m_TmpNormPoints = new List<Vector3>(1024);
-        private readonly List<Vector3> m_TmpWorldPoints = new List<Vector3>(1024);
+        protected GameObjectSettingsMeta m_Settings;
 
-        protected void ParseColliders(int n, Constraint constraint, Matrix4x4 worldToLocalMatrix)
+        protected Collider[] m_ColliderBuffer;
+        protected int m_LayerMask;
+
+        // Temp. points, TODO init capacity?
+        private readonly List<Vector3> m_NormPoints = new List<Vector3>(1024);
+        private readonly List<Vector3> m_WorldPoints = new List<Vector3>(1024);
+
+
+        protected void ValidateColliderBufferSize(int numFound)
+        {
+            if (numFound == m_ColliderBufferSize)
+            {
+                m_ColliderBufferSize *= 2;
+                m_ColliderBuffer = new Collider[m_ColliderBufferSize];
+                Debug.LogWarning("Doubling collider buffer size to " + m_ColliderBufferSize);
+            }
+        }
+
+        protected void ParseColliders(
+            int numFound,
+            DetectionConstraint constraint,
+            Matrix4x4 worldToLocalMatrix)
         {
             Vector3 sensorPos = m_Transform.position;
 
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < numFound; i++)
             {
-                if (m_Settings.IsDetectableTag(m_Buffer[i].tag, out ColliderDetectionType type))
+                if (m_Settings.IsDetectableTag(
+                    m_ColliderBuffer[i].tag, 
+                    out PointDetectionType type))
                 {
-                    var detectable = DetectableGameObject.GetCached(m_Buffer[i]);
+                    var detectable = DetectableGameObject.GetCached(m_ColliderBuffer[i]);
                     // Need to filter out compound collider duplicate results,
                     // as each collider is a key in DetectableGameObject's cache.
-                    // NOTE
-                    // We also skip the sensor owner if there's a DetectableGameObject 
-                    // parent to the sensor.
-                    // Although the owner could be excluded by setting the minimum detection
-                    // distance large enough for 3D, it's better to avoid checking the
-                    // owner's points at every step in the first place.
+                    // We also ignore the sensor owner if there is a  
+                    // DetectableGameObject parent to the sensor.
                     if (detectable != m_Owner && !Result.Contains(detectable))
                     {
-                        m_TmpNormPoints.Clear();
-                        m_TmpWorldPoints.Clear();
+                        m_NormPoints.Clear();
+                        m_WorldPoints.Clear();
 
                         switch (type)
                         {
-                            case ColliderDetectionType.Position:
-                                m_TmpWorldPoints.Add(detectable.GetPosition());
+                            case PointDetectionType.Position:
+                                m_WorldPoints.Add(detectable.GetWorldPosition());
                                 break;
 
-                            case ColliderDetectionType.ClosestPoint:
-                                m_TmpWorldPoints.Add(detectable.GetClosestPoint(sensorPos));
+                            case PointDetectionType.ClosestPoint:
+                                m_WorldPoints.Add(detectable.GetClosestWorldPoint(sensorPos));
                                 break;
 
-                            case ColliderDetectionType.Shape:
-                                m_TmpWorldPoints.AddRange(detectable.GetShapePoints(
-                                    constraint.NormalizeDistance(
+                            case PointDetectionType.Shape:
+                                float normDistance = constraint.GetNormalizedDistance(
                                         worldToLocalMatrix.MultiplyPoint3x4(
-                                            detectable.GetPosition()))));
+                                            detectable.GetWorldPosition()));
+                                m_WorldPoints.AddRange(
+                                    detectable.GetShapeWorldPoints(normDistance));
                                 break;
                         }
 
-                        for (int j = 0, c = m_TmpWorldPoints.Count; j < c; j++)
+                        for (int j = 0, c = m_WorldPoints.Count; j < c; j++)
                         {
                             if (constraint.ContainsPoint(
-                                worldToLocalMatrix.MultiplyPoint3x4(m_TmpWorldPoints[j]), 
-                                out Vector3 normalized))
+                                worldToLocalMatrix.MultiplyPoint3x4(m_WorldPoints[j]), 
+                                out Vector3 normPoint))
                             {
-                                m_TmpNormPoints.Add(normalized);
+                                m_NormPoints.Add(normPoint);
                             }
                         }
 
-                        if (m_TmpNormPoints.Count > 0)
+                        if (m_NormPoints.Count > 0)
                         {
-                            Result.Add(detectable, m_TmpNormPoints);
+                            Result.Add(detectable, m_NormPoints);
                         }
                     }
                 }
             }
         }
 
-        public override void Reset()
+        /// <inheritdoc/>
+        /// <summary>
+        /// Detects colliders and gets the associated <see cref="DetectableGameObject"/>
+        /// instances from the shared cache. Retrieves the objects' points as defined in 
+        /// <see cref="PointDetectionType"/> settings and transforms them into the sensor
+        /// component's frame of reference.
+        /// </summary>
+        public virtual void OnSensorUpdate() 
+        {
+            m_Result.Clear();
+        }
+
+        /// <summary>
+        /// Invoked on sensor reset at the end of each episode.
+        /// </summary>
+        public void OnSensorReset()
         {
             if (m_ClearCacheOnReset)
             {
@@ -118,9 +182,25 @@ namespace MBaske.Sensors.Grid
         }
     }
 
-    public abstract class Constraint
+    /// <summary>
+    /// Abstract base class for sensor constraints.
+    /// </summary>
+    public abstract class DetectionConstraint
     {
-        public abstract bool ContainsPoint(Vector3 localPoint, out Vector3 normalized);
-        public virtual float NormalizeDistance(Vector3 localPoint) => 0;
+        /// <summary>
+        /// Whether the <see cref="DetectionConstraint"/> contains a local point.
+        /// </summary>
+        /// <param name="localPoint">Point in sensor's local space</param>
+        /// <param name="normPoint">Normalized point (output)</param>
+        /// <returns>True if the <see cref="DetectionConstraint"/> contains the point</returns>
+        public abstract bool ContainsPoint(Vector3 localPoint, out Vector3 normPoint);
+
+        /// <summary>
+        /// Returns the normalized distance between sensor component and point.
+        /// Used for 3D detection only.
+        /// </summary>
+        /// <param name="localPoint">Point in sensor's local space</param>
+        /// <returns>Normalized distance</returns>
+        public virtual float GetNormalizedDistance(Vector3 localPoint) => 0;
     }
 }

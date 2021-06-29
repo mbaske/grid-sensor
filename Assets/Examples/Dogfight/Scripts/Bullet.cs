@@ -2,13 +2,31 @@ using UnityEngine;
 
 namespace MBaske.Dogfight
 {
+    /// <summary>
+    /// Interface for bullet owner who must provide the position and
+    /// direction of the gun, as well as a callback for reacting to scored hits.
+    /// </summary>
     public interface IBulletOwner
     {
+        /// <summary>
+        /// Where to place the gun.
+        /// </summary>
         Vector3 GunPosition { get; }
+
+        /// <summary>
+        /// Where to point the gun.
+        /// </summary>
         Vector3 GunDirection { get; }
+
+        /// <summary>
+        /// Callback performs actions after a bullet hit was scored.
+        /// </summary>
         void OnBulletHitScored();
     }
 
+    /// <summary>
+    /// <see cref="Poolable"/> bullet.
+    /// </summary>
     public class Bullet : Poolable
     {
         [SerializeField]
@@ -29,6 +47,11 @@ namespace MBaske.Dogfight
             m_Rigidbody = GetComponent<Rigidbody>();
         }
 
+        /// <summary>
+        /// Shoots a <see cref="Bullet"/> associated 
+        /// with a specified <see cref="IBulletOwner"/>.
+        /// </summary>
+        /// <param name="owner"><see cref="IBulletOwner"/></param>
         public void Shoot(IBulletOwner owner)
         {
             m_Owner = owner;

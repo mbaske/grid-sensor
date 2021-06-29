@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7808089889166259504}
-  - component: {fileID: 7808089889166259505}
+  - component: {fileID: 5755694704096394287}
   m_Layer: 0
   m_Name: ObstaclePool
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7808089889166259505
+--- !u!114 &5755694704096394287
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,12 +40,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7808089889166259506}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3dfd514522d797240a1a2d26def45af8, type: 3}
+  m_Script: {fileID: 11500000, guid: 925bb1cef1f178048a39de7ac0b5eab4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Prefabs:
-  - {fileID: 2028093372630314451, guid: e879bb3c4608e424f84e3d3e890c9a70, type: 3}
-  - {fileID: -8769503785290496629, guid: 81f933bb037212f468c9648f2ac07ef6, type: 3}
-  - {fileID: -850708468457899475, guid: d94f8402221aed24dafa4571d874944e, type: 3}
-  - {fileID: 8684778495856081244, guid: 8ec0658eb3f848a46954a5965234840f, type: 3}
+  - {fileID: 5400264164983900440, guid: e879bb3c4608e424f84e3d3e890c9a70, type: 3}
+  - {fileID: 5036762639308401500, guid: 81f933bb037212f468c9648f2ac07ef6, type: 3}
+  - {fileID: 2588202790165141406, guid: d94f8402221aed24dafa4571d874944e, type: 3}
+  - {fileID: 487125985632079474, guid: 8ec0658eb3f848a46954a5965234840f, type: 3}
   m_Capacities: 0800000040000000400000002c010000

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace MBaske.Driver
 {
     /// <summary>
-    /// ReferenceFrame generates positions for chunks and their vertices.
+    /// Generates positions for chunks and their vertices.
     /// </summary>
     public class ReferenceFrame : MonoBehaviour
     {
@@ -36,6 +36,9 @@ namespace MBaske.Driver
             m_DefPos = transform.position;
         }
 
+        /// <summary>
+        /// Resets the frame.
+        /// </summary>
         public void ManagedReset()
         {
             m_StepCount = 0;
@@ -47,6 +50,10 @@ namespace MBaske.Driver
             MoveFrame();
         }
 
+        /// <summary>
+        /// Moves the frame forward incrementally.
+        /// </summary>
+        /// <returns></returns>
         public Transform MoveFrame()
         {
             transform.position = m_NextPos;

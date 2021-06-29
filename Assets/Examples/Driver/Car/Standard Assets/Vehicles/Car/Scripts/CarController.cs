@@ -19,8 +19,8 @@ namespace UnityStandardAssets.Vehicles.Car
 
     public class CarController : MonoBehaviour
     {
-
-        [SerializeField] private bool m_EnableFX;
+        // TODO
+        //[SerializeField] private bool m_EnableFX;
 
         public void ManagedReset(Vector3 pos, Quaternion rot)
         {
@@ -207,13 +207,13 @@ namespace UnityStandardAssets.Vehicles.Car
                 m_WheelColliders[3].brakeTorque = hbTorque;
             }
 
-
-            if (m_EnableFX)
-            {
-                CalculateRevs();
-                GearChanging();
-                CheckForWheelSpin();
-            }
+            // TODO
+            //if (m_EnableFX)
+            //{
+            //    CalculateRevs();
+            //    GearChanging();
+            //    CheckForWheelSpin();
+            //}
 
             AddDownForce();
             TractionControl();

@@ -6,9 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Examples/Dogfight.unity
-    guid: f2b27c4d3818b514fb6b46fb128e0ba9
+    path: Assets/Examples/Scenes/MazeExplorer.unity
+    guid: cd95d8ed615de594f9614cf9fbc9b51e
+  - enabled: 0
+    path: Assets/Examples/Scenes/Driver.unity
+    guid: 6b2fb928a4345ff409a362fcfb0ebe95
+  - enabled: 0
+    path: Assets/Examples/Scenes/Dogfight.unity
+    guid: 62eb8a0a4093e1745b2465879c56fde0
   - enabled: 1
-    path: Assets/Examples/Driver.unity
-    guid: 3a86837a665683a43bc222ff2ba08ebf
+    path: Assets/Examples/Scenes/FoodCollector.unity
+    guid: 74aeee1f5073c4998840fc784793f1ef
   m_configObjects: {}

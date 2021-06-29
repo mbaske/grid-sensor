@@ -3,15 +3,18 @@ using System.Linq;
 
 namespace MBaske.Dogfight
 {
+	/// <summary>
+	/// Rotates the camera around the closest <see cref="Spaceship"/>.
+	/// </summary>
 	public class RotatingCamera : MonoBehaviour
 	{
 		[SerializeField]
-		private float m_Distance = 35;
+		private float m_Distance = 20;
 		[SerializeField]
-		private float m_Speed = 20;
+		private float m_Speed = 10;
 		private float m_Angle;
 		[SerializeField]
-		private float m_SmoothTime = 0.5f;
+		private float m_SmoothTime = 1;
 		[SerializeField]
 		private int m_UpdateInterval = 60;
 		private int m_StepCount;
@@ -24,8 +27,8 @@ namespace MBaske.Dogfight
 		private void Start()
 		{
 			m_Targets = FindObjectsOfType<Spaceship>().Select(x => x.transform).ToArray();
-			this.enabled = m_Targets.Length > 0;
-			m_Target = this.enabled ? m_Targets[0] : null;
+			enabled = m_Targets.Length > 0;
+			m_Target = enabled ? m_Targets[0] : null;
 		}
 
 		private void LateUpdate()

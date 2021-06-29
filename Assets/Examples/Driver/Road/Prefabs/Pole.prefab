@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 282896075748054923}
-  - component: {fileID: 727104409038715622}
   - component: {fileID: 7258168321444744817}
   - component: {fileID: 3755295057094228186}
   m_Layer: 6
@@ -33,19 +32,6 @@ Transform:
   m_Father: {fileID: 8684778495856081245}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &727104409038715622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 229068931043972904}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8c9d49f422e41f42906616a725df9bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Lifetime: -1
 --- !u!33 &7258168321444744817
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -65,6 +51,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -104,11 +91,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8684778495856081245}
-  - component: {fileID: 3234406078400329043}
-  - component: {fileID: 8684778495856081244}
   - component: {fileID: 9143837385008676559}
+  - component: {fileID: 487125985632079474}
+  - component: {fileID: 209242942783267106}
   m_Layer: 6
-  m_Name: Obstacle-Pole
+  m_Name: Pole
   m_TagString: Pole
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,52 +116,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3234406078400329043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8684778495856081241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c191b328ab2d5344a21508d5344fab2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AddOneHotObservation: 1
-  m_Shape:
-    m_ScanResult:
-    - LocalPoints:
-      - {x: 0, y: 0.33333334, z: 0}
-      - {x: 0, y: 1.6666665, z: 0}
-    - LocalPoints:
-      - {x: 0, y: 0.99999994, z: 0}
-    m_LocalPoints:
-    - {x: 0, y: 0.33333334, z: 0}
-    - {x: 0, y: 1.6666665, z: 0}
-    m_WorldPoints: []
-    m_ScanAtRuntime: 0
-    m_ScanResolution: 0.4
-    m_ScanResolutionTmp: 0.4
-    m_PointCount: 2
-    m_IsScanned: 1
-    m_GizmoRescan: 0
-    m_GizmoDrawGrid: 0
-    m_PointReduction: 0
-    m_MaxReduction: 1
---- !u!114 &8684778495856081244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8684778495856081241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8c9d49f422e41f42906616a725df9bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Lifetime: -1
 --- !u!136 &9143837385008676559
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -189,3 +130,56 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &487125985632079474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8684778495856081241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4e24d1d025c5f8419f0028795f897ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Lifetime: -1
+--- !u!114 &209242942783267106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8684778495856081241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f06e7c5ae2f9934e93db866ce90ef93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Shape:
+    m_ScanResultsByLOD:
+    - LocalPoints:
+      - {x: 0, y: 0.99999994, z: 0}
+    - LocalPoints:
+      - {x: 0, y: 0.49999997, z: 0}
+      - {x: 0, y: 1.4999999, z: 0}
+    - LocalPoints:
+      - {x: 0, y: 0.24999999, z: 0}
+      - {x: 0, y: 0.74999994, z: 0}
+      - {x: 0, y: 1.2499999, z: 0}
+      - {x: 0, y: 1.75, z: 0}
+    m_LocalPoints:
+    - {x: 0, y: 0.24999999, z: 0}
+    - {x: 0, y: 0.74999994, z: 0}
+    - {x: 0, y: 1.2499999, z: 0}
+    - {x: 0, y: 1.75, z: 0}
+    m_WorldPoints: []
+    m_ScanAtRuntime: 0
+    m_MergeDisconnected: 0
+    m_Flatten: 0
+    m_MaxLOD: 2
+    m_SelectedLOD: 2
+    m_ScanLOD: 2
+    m_GizmoLOD: 2
+    m_Projection: 0
+    m_PointCount: 4
+    m_DrawGrid: 0

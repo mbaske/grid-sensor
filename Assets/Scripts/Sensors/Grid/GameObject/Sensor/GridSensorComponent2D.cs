@@ -1,42 +1,46 @@
 using UnityEngine;
+using NaughtyAttributes;
 
 namespace MBaske.Sensors.Grid
 {
+    /// <summary>
+    /// Sensor component for detecting gameobjects on a plane.
+    /// </summary>
     [HelpURL("https://github.com/mbaske/grid-sensor")]
-    public class GridSensorComponent2D : GridSensorComponent
+    [RequireComponent(typeof(GridEditorHelper2D))]
+    public class GridSensorComponent2D : GridSensorComponentBaseGO
     {
-        protected override GridType GridType => GridType._2D;
+        protected override DetectorSpaceType DetectorSpaceType => DetectorSpaceType.Box;
+
+
+        #region Geometry Settings
 
         /// <summary>
-        /// Whether to Y-rotate detection bounds together with the sensor transform.
+        /// Whether and how to rotate detection bounds with the sensor component.
         /// </summary>
-        public Detector2DRotationType RotationType
+        public GameObjectDetector2D.SensorRotationType RotationType
         {
             get { return m_RotationType; }
-            set { m_RotationType = value; }
+            set { m_RotationType = value; OnRotationTypeChange();  }
         }
-        [SerializeField, Tooltip("Sensor rotation type.")]
-        private Detector2DRotationType m_RotationType = Detector2DRotationType.AgentY;
+        [SerializeField]
+        [OnValueChanged("OnRotationTypeChange")]
+        [Foldout("Geometry")]
+        [Tooltip("Sensor rotation type.")]
+        private GameObjectDetector2D.SensorRotationType m_RotationType 
+            = GameObjectDetector2D.SensorRotationType.AgentY;
+        // Default world rotation.
         private Quaternion m_WorldRotation = Quaternion.LookRotation(Vector3.forward);
-
-        /// <summary>
-        /// Unrounded Scene GUI bounds (updated by custom editor).
-        /// </summary>
-        public Bounds EditorBounds
+    
+        private void OnRotationTypeChange()
         {
-            get { return m_EditorBounds; }
-            set
+            if (HasSensor)
             {
-                m_EditorBounds = value;
-                m_Offset = value.center;
-                m_BoundsSize = value.size;
-
-                RoundDetectionBoundsSize();
-                m_DetectionBounds.center = value.center;
+                ((GameObjectDetector2D)m_GridSensor.Detector)
+                    .RotationType = RotationType;
             }
         }
-        [SerializeField, HideInInspector]
-        private Bounds m_EditorBounds = new Bounds(Vector3.zero, new Vector3(20, 1, 20));
+
 
         /// <summary>
         /// Rounded detection bounds (actual sensor bounds).
@@ -44,10 +48,38 @@ namespace MBaske.Sensors.Grid
         public Bounds DetectionBounds
         {
             get { return m_DetectionBounds; }
-            set { m_DetectionBounds = value; }
         }
         [SerializeField, HideInInspector]
         private Bounds m_DetectionBounds = new Bounds(Vector3.zero, new Vector3(20, 1, 20));
+
+
+        /// <summary>
+        /// Unrounded Scene GUI bounds used for editing.
+        /// </summary>
+        public Bounds EditorBounds
+        {
+            get { return m_EditorBounds; }
+            set 
+            {
+                m_EditorBounds = value; 
+                OnEditorBoundsChange();
+            }
+        }
+        [SerializeField, HideInInspector]
+        private Bounds m_EditorBounds = new Bounds(Vector3.zero, new Vector3(20, 1, 20));
+
+        private void OnEditorBoundsChange()
+        {
+            m_Offset = m_EditorBounds.center;
+            m_BoundsSize = m_EditorBounds.size;
+            m_DetectionBounds.center = m_EditorBounds.center;
+
+            RoundDetectionBoundsSize();
+
+            // Saving for Scene GUI Undo.
+            SaveState(OnEditorBoundsChange, "Grid Sensor Change");
+        }
+
 
         /// <summary>
         /// X/Z size of each grid cell.
@@ -55,30 +87,98 @@ namespace MBaske.Sensors.Grid
         public float CellSize
         {
             get { return m_CellSize; }
-            set { m_CellSize = value; }
         }
-        [SerializeField, Tooltip("X/Z size of individual grid cells.")]
+        [SerializeField]
+        [OnValueChanged("OnCellSizeChange")]
+        [Foldout("Geometry")]
+        [Tooltip("X/Z size of individual grid cells.")]
         [Min(0.1f)] private float m_CellSize = 1;
-        [SerializeField, HideInInspector]
-        private float m_TmpCellSize = 1;
+        
+        private void OnCellSizeChange()
+        {
+            Bounds b = m_EditorBounds;
+            b.size = new Vector3(
+                Mathf.Max(b.size.x, m_CellSize),
+                b.size.y,
+                Mathf.Max(b.size.z, m_CellSize));
+            EditorBounds = b;
+        }
 
-        [SerializeField, Tooltip("The number of grid cells per axis.")]
+
+        [SerializeField]
+        [OnValueChanged("OnNumCellsChange")]
+        [Foldout("Geometry")]
+        [Tooltip("The number of grid cells per axis.")]
         private Vector3Int m_NumCells = new Vector3Int(20, 1, 20);
-        [SerializeField, ReadOnly, Tooltip("Actual detection bounds size of the grid sensor." +
-            " Values are rounded to match cell size. Visualized by the blue box in scene view (Gizmos).")]
+
+        private void OnNumCellsChange()
+        {
+            Bounds b = m_EditorBounds;
+            // Number of cells we can fit into bounds.
+            Vector3Int n = new Vector3Int(
+                Mathf.RoundToInt(b.size.x / m_CellSize),
+                Mathf.RoundToInt(b.size.y / m_CellSize),
+                Mathf.RoundToInt(b.size.z / m_CellSize));
+
+            if (n != m_NumCells)
+            {
+                m_NumCells = Vector3Int.Max(m_NumCells, Vector3Int.one);
+                m_NumCells.y = 1;
+
+                // Resize, fit x/z to cells.
+                Vector3 size = (Vector3)m_NumCells * m_CellSize;
+                size.y = b.size.y; // keep height
+                b.size = size;
+            }
+            EditorBounds = b;
+        }
+
+
+        [SerializeField]
+        [ReadOnly]
+        [Foldout("Geometry")]
+        [Tooltip("Actual detection bounds size of the grid sensor. Values are rounded " +
+            "to match cell size. Visualized by the blue box in scene view (Gizmos).")]
         private Vector3 m_DetectionSize = new Vector3(20, 1, 20);
-        [SerializeField, Tooltip("Unrounded editor bounds, visualized by the white box in scene view (Gizmos)." +
+
+
+        [SerializeField]
+        [OnValueChanged("OnBoundsSizeChange")]
+        [Foldout("Geometry")]
+        [Tooltip("Unrounded editor bounds, visualized by the white box in scene view (Gizmos)." +
             " Drag handles to change size. Key commands in scene GUI: "
             + "\nS - Snap to cell size\nC - Center on X-axis\nShift+C - Center on all axes")]
         private Vector3 m_BoundsSize = new Vector3(20, 1, 20);
-        [SerializeField, Tooltip("Detection offset from sensor transform position.")]
+
+        private void OnBoundsSizeChange()
+        {
+            Bounds b = m_EditorBounds;
+            b.size = new Vector3(
+                Mathf.Max(m_BoundsSize.x, m_CellSize),
+                Mathf.Max(m_BoundsSize.y, 1),
+                Mathf.Max(m_BoundsSize.z, m_CellSize));
+            EditorBounds = b;
+        }
+
+
+        [SerializeField]
+        [OnValueChanged("OnOffsetChange")]
+        [Foldout("Geometry")]
+        [Tooltip("Detection offset from sensor transform position.")]
         private Vector3 m_Offset;
 
-        // TODO Update logic could be clearer.
+        private void OnOffsetChange()
+        {
+            Bounds b = m_EditorBounds;
+            b.center = m_Offset;
+            EditorBounds = b;
+        }
 
-        // Called by custom editor, either directly via key command
-        // or indirectly by setting EditorBounds property.
-        public void RoundDetectionBoundsSize()
+        #endregion
+
+
+        // Invoked after setting EditorBounds property.
+        private void RoundDetectionBoundsSize()
         {
             Vector3 s = new Vector3(
                 Mathf.Round(m_EditorBounds.size.x / m_CellSize), 0,
@@ -93,12 +193,12 @@ namespace MBaske.Sensors.Grid
             m_DetectionBounds.size = s;
             m_DetectionSize = s;
 
-            m_GridSize.x = m_NumCells.x;
-            m_GridSize.y = m_NumCells.z;
-            UpdateObservationShapeInfo();
+            UpdateGridSize(m_NumCells.x, m_NumCells.z);
         }
 
-        // Called by custom editor via key command.
+        /// <summary>
+        /// Invoked by custom editor via key command.
+        /// </summary>
         public void RoundDetectionBoundsCenter()
         {
             Vector3 c = new Vector3(
@@ -106,104 +206,85 @@ namespace MBaske.Sensors.Grid
                 Mathf.Round(m_EditorBounds.center.y / m_CellSize),
                 Mathf.Round(m_EditorBounds.center.z / m_CellSize));
             m_DetectionBounds.center = c * m_CellSize;
+
+            // Saving for Scene GUI Undo.
+            SaveState(OnEditorBoundsChange, "Grid Sensor Change");
         }
 
-        // Called by custom editor via key command.
+        /// <summary>
+        /// Invoked by custom editor via key command.
+        /// </summary>
         public void CenterDetectionBoundsOnAxes(bool xOnly)
         {
             Vector3 c = Vector3.zero;
             c.y = xOnly ? m_DetectionBounds.center.y : c.y;
             c.z = xOnly ? m_DetectionBounds.center.z : c.z;
             m_DetectionBounds.center = c;
+
+            // Saving for Scene GUI Undo.
+            SaveState(OnEditorBoundsChange, "Grid Sensor Change");
         }
 
+        /// <summary>
+        /// Get rotation for the selected <see cref="GameObjectDetector2D.SensorRotationType"/>.
+        /// </summary>
+        /// <returns>The current rotation applied to the detector</returns>
         public Quaternion GetRotation()
         {
             return m_RotationType switch
             {
-                Detector2DRotationType.AgentY => Quaternion.AngleAxis(transform.eulerAngles.y, Vector3.up),
-                Detector2DRotationType.AgentXYZ => transform.rotation,
-                _ => m_WorldRotation,
+                GameObjectDetector2D.SensorRotationType.AgentY 
+                    => Quaternion.AngleAxis(transform.eulerAngles.y, Vector3.up),
+                GameObjectDetector2D.SensorRotationType.AgentXYZ 
+                    => transform.rotation,
+                  _ => m_WorldRotation,
             };
         }
 
-        // Called by OnValidate after inspector update.
-        protected override void UpdateSettings()
+        /// <summary>
+        /// Invoked by <see cref="GridEditorHelper2D"/>.
+        /// </summary>
+        public override void OnEditorInit() 
         {
-            SyncEditorBoundsWithInspector();
-            base.UpdateSettings();
+            base.OnEditorInit();
+            // Write back serialized value, will save 
+            // initial state and update grid shape info.
+            EditorBounds = m_EditorBounds;
         }
 
         protected override GameObjectDetector CreateDetector()
-            => new GameObjectDetector2D()
+        {
+            return new GameObjectDetector2D()
             {
-                BufferSize = m_ColliderBufferSize,
-                ClearCacheOnReset = m_ClearCacheOnReset,
-                Settings = m_Detectables,
+                Result = new DetectionResult(
+                    m_GameObjectSettingsMeta.DetectableTags, 
+                    ColliderBufferSize),
+                Settings = m_GameObjectSettingsMeta,
+                ColliderBufferSize = ColliderBufferSize,
+                ClearCacheOnReset = ClearCacheOnReset,
                 SensorTransform = transform,
                 SensorOwner = GetComponentInParent<DetectableGameObject>(),
-                RotationType = m_RotationType,
+                RotationType = RotationType,
                 WorldRotation = m_WorldRotation,
-                Constraint = new Constraint2D()
-                {
-                    Bounds = m_DetectionBounds
-                }
+                Constraint = (DetectionConstraint2D)CreateConstraint()
             };
+        }
 
-        protected override GameObjectEncoder CreateEncoder()
-            => new GameObjectEncoder2D()
-            {
-                Grid = m_PixelGrid,
-                Settings = m_Detectables,
-            };
-
-        protected void SyncEditorBoundsWithInspector()
+        protected override Encoder CreateEncoder()
         {
-            Bounds b = m_EditorBounds;
-
-            if (m_TmpCellSize != m_CellSize)
+            return new Encoder()
             {
-                // Cell size change -> keep bounds size x/z 
-                // or grow to match single cell's size.
-                m_TmpCellSize = m_CellSize;
-                b.size = new Vector3(
-                    Mathf.Max(b.size.x, m_CellSize),
-                    b.size.y,
-                    Mathf.Max(b.size.z, m_CellSize));
-            }
-            else if (b.center != m_Offset)
-            {
-                b.center = m_Offset;
-            }
-            else if (b.size != m_BoundsSize)
-            {
-                // Resize bounds.
-                b.size = new Vector3(
-                    Mathf.Max(m_BoundsSize.x, m_CellSize),
-                    Mathf.Max(m_BoundsSize.y, 1),
-                    Mathf.Max(m_BoundsSize.z, m_CellSize));
-            }
-            else
-            {
-                // Number of cells we can fit into bounds.
-                Vector3Int n = new Vector3Int(
-                    Mathf.RoundToInt(b.size.x / m_CellSize),
-                    Mathf.RoundToInt(b.size.y / m_CellSize),
-                    Mathf.RoundToInt(b.size.z / m_CellSize));
+                Settings = m_GameObjectSettingsMeta,
+                GridBuffer = GridBuffer
+            };
+        }
 
-                if (n != m_NumCells)
-                {
-                    m_NumCells = Vector3Int.Max(m_NumCells, Vector3Int.one);
-                    m_NumCells.y = 1; // 2D sensor
-
-                    // Resize, fit x/z to cells.
-                    Vector3 size = (Vector3)m_NumCells * m_CellSize;
-                    size.y = b.size.y; // keep height
-                    b.size = size;
-                }
-            }
-
-            EditorBounds = b;
+        protected override DetectionConstraint CreateConstraint()
+        { 
+            return new DetectionConstraint2D()
+            {
+                Bounds = DetectionBounds
+            };
         }
     }
 }

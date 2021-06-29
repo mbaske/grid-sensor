@@ -3,16 +3,22 @@ using System.Collections.Generic;
 
 namespace MBaske.Driver
 {
+    /// <summary>
+    /// <see cref="Poolable"/> road chunk.
+    /// </summary>
     public class RoadChunk : Poolable
     {
         // Nominal length (no curvature).
-        private const int c_Length = 15;
+        private const int c_Length = 16;
         // Distances outward from road center.
         private const float c_RoadExtent = 4.25f;
         private const float c_MeshExtent = 7.5f;
         private const float c_PoleDistance = 4.5f;
-        // Applicable to cones and barrels.
-        private static readonly float s_ObstacleXSpacing = c_RoadExtent / (c_Length + 1f);
+        // Lateral spacing for cones and barrels.
+        private static readonly float s_Spacing = c_RoadExtent / (c_Length + 1f);
+
+        [SerializeField]
+        private float m_ObstacleProbability = 0.1f;
 
         private Mesh m_Mesh;
         private MeshFilter m_MeshFilter;
@@ -52,10 +58,16 @@ namespace MBaske.Driver
             base.OnDiscard();
         }
 
+        /// <summary>
+        /// Updates the chunk after it was spawned.
+        /// </summary>
+        /// <param name="frame">The current <see cref="ReferenceFrame"/></param>
+        /// <param name="isFirstChunk">Whether this is the first chunk</param>
         public void UpdateChunk(ReferenceFrame frame, bool isFirstChunk)
         {
-            // TBD probabilities
-            bool hasObstacle = !isFirstChunk && Util.RandomBool(0.1f);
+            // TBD probabilities for spawning obstacles.
+            bool hasObstacle = !isFirstChunk && Util.RandomBool(m_ObstacleProbability);
+            // Random ObstacleType. 
             m_ObstacleType = hasObstacle
                 ? (Util.RandomBool(0.2f)
                     ? ObstacleType.Roadblock
@@ -63,6 +75,7 @@ namespace MBaske.Driver
                         ? ObstacleType.Barrel
                         : ObstacleType.Cone))
                 : m_ObstacleType = ObstacleType.None;
+            // Random road side for obstacles.
             int side = Util.RandomBool(0.5f) ? -1 : 1;
 
             var tf = frame.transform;
@@ -105,14 +118,13 @@ namespace MBaske.Driver
             m_Mesh.vertices = m_Vertices;
             m_Mesh.normals = m_Normals;
             m_Mesh.RecalculateBounds();
-            m_Mesh.RecalculateBounds();
             m_MeshFilter.sharedMesh = m_Mesh;
             m_MeshCollider.sharedMesh = m_Mesh;
         }
 
         private Vector3 ObstacleSpawnPos(Transform tf, int x)
         {
-            return tf.position + tf.right * x * s_ObstacleXSpacing;
+            return tf.position + tf.right * x * s_Spacing;
         }
 
         private void UpdateMesh(Transform tf, int z)

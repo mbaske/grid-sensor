@@ -1,25 +1,36 @@
 ﻿using UnityEngine;
 using Unity.Mathematics;
 using Random = UnityEngine.Random;
-using MBaske.Sensors.Grid;
-using EasyButtons;
+using NaughtyAttributes;
 
 namespace MBaske.Dogfight
 {
+    /// <summary>
+    /// Randomizable asteroid.
+    /// </summary>
     public class Asteroid : MonoBehaviour
     {
+        /// <summary>
+        /// Asteroid's position in local space.
+        /// </summary>
         public Vector3 LocalPosition
         {
             get { return transform.localPosition; }
             set { transform.localPosition = value; }
         }
 
+        /// <summary>
+        /// Asteroid's velocity in world space.
+        /// </summary>
         public Vector3 WorldVelocity
         {
             get { return m_Rigidbody.velocity; }
             set { m_Rigidbody.velocity = value; }
         }
 
+        /// <summary>
+        /// Asteroid's angular velocity in world space.
+        /// </summary>
         public Vector3 WorldSpin
         {
             set { m_Rigidbody.angularVelocity = value; }
@@ -39,13 +50,20 @@ namespace MBaske.Dogfight
         private Mesh m_Template;
         private Rigidbody m_Rigidbody;
 
+        /// <summary>
+        /// Randomizes the asteroid's shape.
+        /// </summary>
+        /// <param name="minSize">Minimum size</param>
+        /// <param name="maxSize">Maximum size</param>
+        /// <param name="maxDeform">Maximum deform</param>
+        /// <param name="noise">Noise amount</param>
         public void RandomizeShape(float minSize, float maxSize, float maxDeform, float noise)
         {
             MinSize = minSize;
             MaxSize = maxSize;
             MaxDeform = maxDeform;
             Noise = noise;
-            UpdateProperties(true);
+            UpdateShape(true);
         }
 
         private void OnValidate()
@@ -56,16 +74,21 @@ namespace MBaske.Dogfight
         [Button]
         private void DebugRandomize()
         {
-            UpdateProperties(true);
+            UpdateShape(true);
         }
 
         [Button]
         private void DebugReset()
         {
-            UpdateProperties(false);
+            UpdateShape(false);
         }
 
-        public void UpdateProperties(bool randomize)
+        /// <summary>
+        /// Updates the asteroids shape and mass.
+        /// </summary>
+        /// <param name="randomize">Whether to randomize the 
+        /// asteroid or reset it to default values</param>
+        public void UpdateShape(bool randomize)
         {
             float a = Random.Range(0.5f, 2f);
             float b = Random.Range(0.25f, 0.5f) * (Random.value > 0.5f ? Noise : -Noise);
@@ -88,14 +111,6 @@ namespace MBaske.Dogfight
 
             m_Rigidbody = GetComponent<Rigidbody>();
             m_Rigidbody.mass = randomize ? radius.x * radius.y * radius.z * 10 : 1;
-
-            if (TryGetComponent(out DetectableGameObject detectable))
-            {
-                // The grid sensor might have already scanned this asteroid,
-                // before the randomized mesh collider was applied.
-                // In that case, it'll be rescanned later.
-                detectable.ForceRescan();
-            }
         }
 
         private Mesh Mesh

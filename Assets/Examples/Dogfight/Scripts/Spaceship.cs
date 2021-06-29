@@ -3,9 +3,20 @@ using System;
 
 namespace MBaske.Dogfight
 {
+    /// <summary>
+    /// Spaceship gameobject that is controlled by a <see cref="PilotAgent"/>. 
+    /// </summary>
     public class Spaceship : MonoBehaviour
     {
+        /// <summary>
+        /// Invoked on collision.
+        /// </summary>
         public event Action CollisionEvent;
+
+        /// <summary>
+        /// Optional: Invoked on <see cref="Bullet"/> hit 
+        /// if <see cref="Bullet"/> collider is trigger.
+        /// </summary>
         public event Action BulletHitEvent;
 
         /// <summary>
@@ -13,6 +24,7 @@ namespace MBaske.Dogfight
         /// between center and brake threshold radius.
         /// </summary>
         public float NormPosition { get; private set; }
+
         /// <summary>
         /// Normalized forward angle relative to outward pointing normal.
         /// </summary>
@@ -22,30 +34,50 @@ namespace MBaske.Dogfight
         /// Normalized throttle control value. 
         /// </summary>
         public float Throttle { get; private set; }
+
         /// <summary>
         /// Normalized pitch control value. 
         /// </summary>
         public float Pitch { get; private set; }
+
         /// <summary>
         /// Normalized roll control value. 
         /// </summary>
         public float Roll { get; private set; }
 
+        /// <summary>
+        /// Ship's velocity in world space.
+        /// </summary>
         public Vector3 WorldVelocity => m_Rigidbody.velocity;
+
+        /// <summary>
+        /// Ship's velocity in local space.
+        /// </summary>
         public Vector3 LocalVelocity => transform.InverseTransformVector(m_Rigidbody.velocity);
+
+        /// <summary>
+        /// Ship's angular velocity in local space.
+        /// </summary>
         public Vector3 LocalSpin => transform.InverseTransformVector(m_Rigidbody.angularVelocity);
 
+        /// <summary>
+        /// Ship's position in local space.
+        /// </summary>
         public Vector3 LocalPosition
         {
             get { return transform.localPosition; }
             set
             {
                 transform.localPosition = value;
+                // Set on episode begin, all ships look towards center.
                 transform.rotation = Quaternion.LookRotation(-value);
                 Stop();
             }
         }
 
+        /// <summary>
+        /// Sets the brake zone depending on the <see cref="AsteroidField"/>'s radius.
+        /// </summary>
         public float EnvironmentRadius
         {
             set
@@ -61,7 +93,7 @@ namespace MBaske.Dogfight
 
         [Space]
         [SerializeField]
-        private float m_ControlIncrement = 0.04f;
+        private float m_ControlIncrement = 0.05f;
         [SerializeField]
         private float m_ControlAttenuate = 0.95f;
         [SerializeField]
@@ -74,6 +106,14 @@ namespace MBaske.Dogfight
             Stop();
         }
 
+        /// <summary>
+        /// Updates the ship's state, invoked by <see cref="PilotAgent"/>.
+        /// Control values are relative.
+        /// </summary>
+        /// <param name="throttle">Throttle control value</param>
+        /// <param name="pitch">Pitch control value</param>
+        /// <param name="roll">Roll control value</param>
+        /// <returns></returns>
         public float ManagedUpdate(int throttle, int pitch, int roll)
         {
             Vector3 pos = LocalPosition;
@@ -102,7 +142,7 @@ namespace MBaske.Dogfight
             m_Rigidbody.AddTorque(transform.right * Pitch + fwd * -Roll, ForceMode.VelocityChange);
 
 
-            // Update observations.
+            // Update observables.
 
             NormPosition = Mathf.Clamp01(sqrMag / m_BrakeThreshRadiusSqr) * 2 - 1;
             NormOrientation = Vector3.Angle(normal, fwd) / 90f - 1;

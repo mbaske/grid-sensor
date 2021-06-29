@@ -2,26 +2,42 @@ using UnityEngine;
 
 namespace MBaske.Sensors.Grid
 {
-    public enum Detector2DRotationType
-    {
-        AgentY, AgentXYZ, None
-    }
-
+    /// <summary>
+    /// Detects gameobjects located on a plane.
+    /// </summary>
     public class GameObjectDetector2D : GameObjectDetector
     {
-        public Detector2DRotationType RotationType
+        /// <summary>
+        /// Whether and how to rotate detection bounds with the sensor component.
+        /// </summary>
+        public enum SensorRotationType
+        {
+            AgentY, AgentXYZ, None
+        }
+
+        /// <summary>
+        /// Whether and how to rotate detection bounds with the sensor component.
+        /// </summary>
+        public SensorRotationType RotationType
         {
             set { m_RotationType = value; }
         }
-        private Detector2DRotationType m_RotationType;
+        private SensorRotationType m_RotationType;
 
+        /// <summary>
+        /// The world rotation to use if <see cref="Detector2DRotationType"/>
+        /// is set to <see cref="Detector2DRotationType.None"/>.
+        /// </summary>
         public Quaternion WorldRotation
         {
             set { m_WorldRotation = value; }
         }
         private Quaternion m_WorldRotation;
 
-        public Constraint2D Constraint
+        /// <summary>
+        /// Constraint for 2D detection.
+        /// </summary>
+        public DetectionConstraint2D Constraint
         {
             set
             {
@@ -30,40 +46,55 @@ namespace MBaske.Sensors.Grid
                 m_BoundsExtents = value.Bounds.extents;
             }
         }
-        private Constraint2D m_Constraint;
+        private DetectionConstraint2D m_Constraint;
         private Vector3 m_BoundsCenter;
         private Vector3 m_BoundsExtents;
 
-        public override DetectionResult Update()
+        /// <inheritdoc/>
+        public override void OnSensorUpdate()
         {
-            Result.Clear();
+            base.OnSensorUpdate();
 
-            Quaternion rot = m_WorldRotation;
+            Quaternion rotation = m_WorldRotation;
 
             switch (m_RotationType)
             {
-                case Detector2DRotationType.AgentY:
-                    rot = Quaternion.AngleAxis(m_Transform.eulerAngles.y, Vector3.up);
+                case SensorRotationType.AgentY:
+                    rotation = Quaternion.AngleAxis(m_Transform.eulerAngles.y, Vector3.up);
                     break;
-                case Detector2DRotationType.AgentXYZ:
-                    rot = m_Transform.rotation;
+                case SensorRotationType.AgentXYZ:
+                    rotation = m_Transform.rotation;
                     break;
             }
 
-            Vector3 pos = m_Transform.position;
-            Matrix4x4 worldToLocalMatrix = Matrix4x4.TRS(pos, rot, Vector3.one).inverse;
+            Vector3 position = m_Transform.position;
+            Matrix4x4 worldToLocalMatrix = Matrix4x4.TRS(position, rotation, Vector3.one).inverse;
 
-            ParseColliders(
-                Physics.OverlapBoxNonAlloc(pos + rot * m_BoundsCenter, 
-                    m_BoundsExtents, m_Buffer, rot, m_LayerMask),
-                m_Constraint, worldToLocalMatrix);
+            int numFound = 0;
+            do
+            {
+                ValidateColliderBufferSize(numFound);
+                numFound = Physics.OverlapBoxNonAlloc(
+                    position + rotation * m_BoundsCenter,
+                    m_BoundsExtents, 
+                    m_ColliderBuffer, 
+                    rotation, 
+                    m_LayerMask);
+            }
+            while (numFound == m_ColliderBufferSize);
 
-            return Result;
+            ParseColliders(numFound, m_Constraint, worldToLocalMatrix);
         }
     }
 
-    public class Constraint2D : Constraint
+    /// <summary>
+    /// Constraint for 2D detection.
+    /// </summary>
+    public class DetectionConstraint2D : DetectionConstraint
     {
+        /// <summary>
+        /// Detection bounds.
+        /// </summary>
         public Bounds Bounds
         {
             set
@@ -76,15 +107,16 @@ namespace MBaske.Sensors.Grid
         private Bounds m_Bounds;
         private Rect m_BoundRect;
 
-        public override bool ContainsPoint(Vector3 localPoint, out Vector3 normalized)
+        /// <inheritdoc/>
+        public override bool ContainsPoint(Vector3 localPoint, out Vector3 normPoint)
         {
             if (m_Bounds.Contains(localPoint))
             {
-                normalized = Rect.PointToNormalized(m_BoundRect, new Vector2(localPoint.x, localPoint.z));
+                normPoint = Rect.PointToNormalized(m_BoundRect, new Vector2(localPoint.x, localPoint.z));
                 return true;
             }
 
-            normalized = default;
+            normPoint = default;
             return false;
         }
     }

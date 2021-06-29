@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8004574655488464474}
-  - component: {fileID: 8004574655488464477}
+  - component: {fileID: 4844808915380065039}
   m_Layer: 0
   m_Name: Road
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8004574655488464477
+--- !u!114 &4844808915380065039
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,8 +40,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 8004574655488464475}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8dafca31c51e0049b0619c2d8a10107, type: 3}
+  m_Script: {fileID: 11500000, guid: 6071dccb0acfd014383b85468b116ac9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numChunks: 20
+  m_NumChunks: 20
   m_Frame: {fileID: 0}

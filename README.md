@@ -1,293 +1,246 @@
 
-# Grid Sensor for Unity ML-Agents
-This is an experimental Grid Sensor for the [Unity Machine Learning Agents Toolkit](https://github.com/Unity-Technologies/ml-agents).  
-It is compatible with [v1.9.0 / release 15](https://github.com/Unity-Technologies/ml-agents/releases/tag/release_15).
+# Grid Sensors for Unity ML-Agents - Version 2.0
+This is a collection of Grid Sensors for the [Unity Machine Learning Agents Toolkit](https://github.com/Unity-Technologies/ml-agents). It is compatible with [v2.1.0 / release 18](https://github.com/Unity-Technologies/ml-agents/releases/tag/release_18). You can find the previous version for v1.9.0 / release 15 [here](https://github.com/mbaske/grid-sensor/tree/version1).
 
-* [Concept](#Concept)  
-* [Game Object Detection](#Game-Object-Detection)  
-* [Workflow](#Workflow)
-    - [Object Shapes](#Object-Shapes) 
-    - [Custom Observations](#Custom-Observations) 
-* [Sensor Settings](#Sensor-Settings)
-    - [3D Specific](#3D-Specific-Settings)
-    - [2D Specific](#2D-Specific-Settings)
-* [Differences from Eidos Grid Sensor](#differences-from-eidos-grid-sensor-ml-agents-v190)
-* [Example Scenes](#Example-Scenes)  
-* [Utility Components](#Utility-Components)  
+* [What's new in Version 2.0](#What's-new-in-Version-2.0)  
+* [Grid Sensor Component](#Grid-Sensor-Component)  
+    - [General Sensor Settings](#General-Sensor-Settings)
+    - [How to implement your own grid observations](#How-to-implement-your-own-grid-observations)
+* [Detecting Game Objects](#Detecting-Game-Objects)  
+    - [Preparing Detectable Game Objects](#Preparing-Detectable-Game-Objects) 
+        - [Shape Settings](#Shape-Settings)
+    - [Detection Settings](#Detection-Settings)
+        - [Observables](#Observables)
+    - [Sensor Geometry](#Sensor-Geometry)
+        - [Grid Sensor Component 3D](#Grid-Sensor-Component-3D)  
+        - [Grid Sensor Component 2D](#Grid-Sensor-Component-2D)  
+* [Examples](#Examples)  
+    - [Maze Explorer](#Maze-Explorer)
+    - [Dogfight](#Dogfight)
+    - [Driver](#Driver)
+    - [Food Collector](#Food-Collector)
+* [Dependencies](#Dependencies)
+* [Demo Video](https://youtu.be/F4qTP_wA40s)
 <br/><br/>
 
-<!-- ![Overview](Sensor.png) -->
+# What's new in Version 2.0
 
-# Concept
+* New minimalistic [GridSensorComponent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponent.cs) and accompanying [Maze Explorer](#Maze-Explorer) example.
+* Component inspector settings are grouped into foldouts.
+* Integrated visualization and debugging options.
+* There are no longer separate 2D and 3D variants of the [DetectableGameObject](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs) component.
+* Easier handling of observables, `Distance` and `One-Hot` are set depending on detection type.
+* Improved shape scanning algorithm and interface. Now supports concave colliders and context sensitive levels of detail. 
+* The `Scan-At-Runtime` option has been removed in favour of explicit method calls.
+* Frustum culling for [GridSensorComponent3D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent3D.cs) with convex FOVs increases detection speed.
+* For stacked observations, the grid sensor is now being wrapped in ML-Agent's [StackingSensor](https://docs.unity3d.com/Packages/com.unity.ml-agents@2.1/api/Unity.MLAgents.Sensors.StackingSensor.html).
+* Optional detectors and encoders implement the [IDetector](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Detection/IDetector.cs) and [IEncoder](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Encoding/IEncoder.cs) interfaces, rather than extending abstract classes.
+* Various classes have been renamed, e.g. the former ChannelGrid and PixelGrid are now called [GridBuffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridBuffer.cs) and [ColorGridBuffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/ColorGridBuffer.cs).
+* Code refactoring and comments.
 
-The [GridSensor](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Sensor/GridSensor.cs) was originally developed as a simple means to encode float values as visual observations. It doesn't make any assumptions about the type of data being observed. You would typically use it together with [GridSensorComponentBase](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Sensor/GridSensorComponentBase.cs), a component that wraps the sensor class and can be attached to an agent. The sensor expects a [PixelGrid](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Data/PixelGrid.cs) data structure to read from. Implement your custom logic for mapping observations to pixels in a class which implements [IPixelGridProvider](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Data/IPixelGridProvider.cs) and make that available to the sensor component.
-
-`Sensor Name` and `Compression Type` are the only inspector settings for GridSensorComponentBase. 
-
-Besides this bare-bones approach, you can extend GridSensorComponentBase and build your own grid based sensor components on top of the existing structure. The GridSensor class has optional *Detector* and *Encoder* properties. A Detector provides a DetectionResult - a tag based collection of detectable objects implementing IDetectable. An Encoder parses the DetectionResult in order to populate the sensor's PixelGrid. Extending the abstract Detector and Encoder classes is one possible way of implementing custom detection/encoding logic.
+I debated with myself if I should add support for 2D physics, but decided against it in the end. The reason being that the typical use case for 2D physics is platformer games. Those tend to require pretty high resolution observations though. Using camera sensors should generally be the better option for platformers.
 <br/><br/>
 
-# Game Object Detection
+# Grid Sensor Component
 
-Detecting gameobjects is an obvious use case for extending the basic sensor component. I started out with a spatial grid sensor that converts 3D positions to polar coordinates and maps those onto a 2D grid. Therefore my implementation is *point based* - there are three options as to what can be detected about a gameobject: 
+![Grid Sensor Component](Images/insp-basic.png)  
+
+The [GridSensorComponent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponent.cs) provides the basic functionality required for visual grid observations. It wraps a [GridSensor](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensor.cs) and exposes a [GridBuffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridBuffer.cs), to which you can write normalized float values. You can instantiate and [assign the buffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponentBase.cs#L171) yourself, or let the component generate one matching the [GridBuffer.Shape](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridBuffer.cs#L13) settings [you specify](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponentBase.cs#L172). Note that you need to create a [ColorGridBuffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/ColorGridBuffer.cs) (which extends GridBuffer and stores color values), if you're applying PNG compression to the observation. All my grid sensor components generate ColorGridBuffers as their default.
+
+A word of caution regarding initialization order: sensors are created by the ML-Agents framework when the associated agent is enabled. The GridSensorComponent must have a GridBuffer, or at least a GridBuffer.Shape assigned to it when this happens. You can always disable the agent gameobject in the editor and enable it at runtime, in case you need to run initialization logic elsewhere before making the necessary data available to the GridSensorComponent.
+
+The [Maze Explorer](#Maze-Explorer) example demonstrates how to integrate the basic GridSensorComponent with an agent.
+<br/><br/>
+
+## General Sensor Settings  
+
+The following inspector settings apply to the basic [GridSensorComponent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponent.cs), as well as to the gameobject detecting [GridSensorComponent2D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent2D.cs) and [GridSensorComponent3D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent3D.cs), since all of them extend [GridSensorComponentBase](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponentBase.cs).
+
+* `Observation Shape` (read only) - Shape of the sensor's visual observation. Unlike in the previous version, its channel count *does not* include stacked observations.
+* _**Basics**_
+    - `Sensor Name` - Name of the generated grid sensor.
+    - `Observation Stacks` - The number of stacked observations.
+    - `Compression Type` - The sensor compression type used by the sensor, `PNG` (default) or `None`.
+    - `Observation Type` - The observation type for the sensor, `Default` or `Goal Signal`.
+* _**Debug**_
+    - `Auto-Create Sensor` - Whether the component should create its sensor on Awake. Select this option to test a stand-alone sensor component not attached to an agent.
+    - `Re-Initialize On Change` - Whether to recreate the sensor everytime inspector settings change. Select this option to immediately see the effects of settings updates that would otherwise not be changeable at runtime. Only available for auto-created sensor.
+    - `Update Interval` - FixedUpdate interval for auto-created sensor.
+    - `Draw Grid Buffer` - Whether to draw the grid buffer contents to the inspector (runtime only). Requires constant repaint and is somewhat expensive - expect your framerates to drop with this option enabled. In rare cases, the visualization might freeze and you'll need to unselect and reselect the checkbox. The channel filter names and colors below are defined in a list of [ChannelLabel](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Debug/ChannelLabel.cs)s, that you can [assign to the sensor component](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponentBase.cs#L99) (fallback values are provided if you don't). Note that there is a [bug in ML-Agents' behavior parameters editor](https://github.com/Unity-Technologies/ml-agents/issues/5443) which can break grid drawing (and possibly a couple of other things). To work around it, the grid sensor component hides the behavior parameters inspector at runtime. 
+<br/><br/>
+
+## How to implement your own grid observations
+
+There are three ways you can feed your observation to the grid sensor:
+
+* Use the [GridSensorComponent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponent.cs) as is and write grid values directly to its [GridBuffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridBuffer.cs). The [MazeAgent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Examples/MazeExplorer/Scripts/MazeAgent.cs) utilizes this approach.
+* Extend [GridSensorComponent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponent.cs) and implement your code for mapping observations to grid values in a custom sensor component.
+* In addition to the second option, you can create *detectors* and *encoders*, encapsulating the logic for arbitrary detection types, and for encoding the results to the [GridBuffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridBuffer.cs). This is how the gameobject detecting [GridSensorComponent2D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent2D.cs) and [GridSensorComponent3D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent3D.cs) work. The [GridSensor](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensor.cs#L24) has optional [IDetector](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Detection/IDetector.cs) and [IEncoder](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Encoding/IEncoder.cs) properties. A detector generates a [DetectionResult](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Detection/DetectionResult.cs), which contains a collection of [DetectionResult.Item](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Detection/DetectionResult.cs#L12)s. Each item in turn stores an [IDetectable](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Detection/IDetectable.cs) instance and its associated grid points. An encoder processes the detection result and generates the corresponding grid channel values. The grid sensor [automatically invokes](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensor.cs#L165) the necessary methods on update, if its detector and encoder properties are set.
+<br/><br/>
+
+# Detecting Game Objects
+
+Add a [GridSensorComponent2D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent2D.cs) or [GridSensorComponent3D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent3D.cs) to your agents for gameobject detection. The 2D variant is comparable to [Unity's GridSensorComponent](https://docs.unity3d.com/Packages/com.unity.ml-agents@2.1/api/Unity.MLAgents.Sensors.GridSensorComponent.html). It finds objects sitting on a plane, whereas the 3D sensor performs spatial detection within a given field of view.
+
+Although their results are similar, my sensor uses a different detection approach than Unity's sensor. Rather than checking collider overlaps for every grid position, my sensor is point based. This means that an object's shape is represented as a set of cached local points, which are then transformed into the sensor's frame of reference. The benefit of my method is that it [scales better for multiple sensor instances](https://youtu.be/F4qTP_wA40s?t=210), because it requires far less overlap checks. On the downside however, using my sensor involves a bit more preparatory work.
+
+There are three options as to what can be detected about a gameobject: 
 * Its transform's position.
 * The closest point on its colliders.
 * A set of points roughly matching the object's shape.
-
-While position and closest point can be queried repeatedly, the shape points need to be generated and cached for better performance. This requires a DetectableGameObject component being attached to detectable objects.  
-
-I subsequently generalized the sensor for 2D and 3D detection, but kept the initial point based approach.  
-The corresponding sensor components are [GridSensorComponent3D](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent3D.cs) for spatial detection and [GridSensorComponent2D](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent2D.cs) for detecting objects located on a plane.
 <br/><br/>
 
-# Workflow
+## Preparing Detectable Game Objects
 
-A detectable gameobject needs to have a [DetectableGameObject3D](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/GameObject/Detectable/DetectableGameObject3D.cs) or [DetectableGameObject2D](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/GameObject/Detectable/DetectableGameObject2D.cs) component attached to it. These differ in how shape points are being generated: for 3D, they fill collider volumes - for 2D, points sit on a plane.
+A detectable gameobject must have a [DetectableGameObject](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs) component attached to it. Detectable gameobject types are distinguished by their tags. You can later apply different detection settings for each specific object type/tag. Simply adding the component is sufficient, as long as your sensor only detects the object's position or closest collider point. 
 
-Every *type* of detectable object is identified by its tag. In the [Driver environment](#Example-Scenes) for instance, cones, barrels and roadblocks all share the *"Obstacle"* tag, because they are of the same detectable type. Each of the corresponding prefabs contains a DetectableGameObject3D component.
+For shape detection on the other hand, it is necessary to generate a set of points, using the `Shape` inspector settings. I'm referring to creating these points as *scanning* an object. For best runtime performance, you would typically do this upfront. Ideally in edit mode, so that points can be serialzed and stored with the detectable object's prefab. Sometimes though, object shapes are dynamic and points can't be generated ahead of time. In that case, you can invoke DetectableGameObject's [ScanShapeRuntime(https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs#L67)] method. Scanning objects can be costly - if you call this method on multiple objects at once, the scans will be queued and 5 of them are executed per frame. The [Dogfight example](#Dogfight) runs batched scanning at initialization for all the randomized asteroid shapes. When entering play mode, it'll take a moment for all scans to complete.
 
-![Detectable Prefab](Images/cone_prefab.png)
+### Shape Settings
 
-In order to add a detectable object type to the sensor, drag and drop your prefab or scene gameobject onto the `Add Detectable Object` field in the sensor component inspector.
+![Shape Inspector Settings](Images/insp-shape.png)  
 
-![Drag & Drop Prefab](Images/cone_drag.png)
+Open your detectable gameobject's prefab and enable Gizmos to see how different settings produce various sets of points. The 3D sensor variant uses levels of detail for reducing the amount of points it needs to process, depending on the distance between sensor and object. For 2D, the specified LOD is fixed because detectable points don't change with distance. 
 
-The object's tag now appears under `Detectables > Settings By Tag`.
+The shape scanning algorithm splits gameobjects into separate *volumes*, if there are multiple disconnected colliders. It then tries to find matching LODs, which works best for similar sized colliders. If your object only has a single or compound collider, you don't need to worry about this.
 
-![Prefab Added](Images/cone_added.png)
+* `Merge Disconnected` - Whether to merge disconnected colliders into a single volume. Can affect LOD points.
+* `Flatten` - Whether to place all points on the gameobject's XZ-plane. This option is typically enabled for 2D detection.
+* `Scan LOD` - The level of detail applied to scanning. Note that this is a relative value and results depend on the object's size. There is a hard limit beyond which the resolution can't be increased. Therefore small objects support less LODs than large ones.
+* `Gizmo LOD` - Highlights points for the selected LOD. Change this value to see what points the detector will register depending on the object's distance.
+* `Projection` - Shape points are located *inside* of colliders. Increasing this value will project them outward onto the collider bounds. Single convex colliders normally produce the best results.
+* `Point Count` (read only) - The number of points for the current LOD.
+* `Draw Grid` - Set a value to draw grid cells of matching size around the detectable points. This is meant for testing purposes and is independent of sensor component settings. You can use this option for visualizing how different grid sizes and Scan LODs work together, in order to adjust your settings.
+* `Scan Shape` - Press this button to force a new scan after you've updated the object's colliders. Changing the settings above will automatically trigger scanning if required.
 
-
-For objects with the same tag, you only need to do this once: adding the cone prefab tells the sensor to detect objects of type *"Obstacle"*. No need to add the barrel and roadblock prefabs as well - in fact, you'll get a duplicate tag warning if you try.  
-For each distinct tag, the inspector shows `Enabled`, `Detection Type`, `Shape Modifier` and `Observations List` settings. These apply to all detectable objects sharing the tag. (Please see [Custom Observations](#Custom-Observations)  for why I chose this workflow.)  
-
-`Detection Type` > `Position` and `Closest Point` don't require any further setup work.
+`Gizmo LOD` and `Projection` settings are disabled for flattened points. Don't forget to save your prefab after you're done scanning the gameobject shape.
 <br/><br/>
 
-## Object Shapes
+## Detection Settings
 
-A gameobject's *shape* is determined by its colliders. I'm referring to generating the corresponding points as *scanning*.  
+A newly added GridSensorComponent2D or GridSensorComponent3D component can't detect anything, because it is unaware of any detectable gameobject types.
 
-![Ship Colliders](Images/ship_colliders.png)
+![Detection Inspector Settings](Images/insp-detect1.png)  
 
-Select a detectable gameobject and enable *Gizmos* in scene view to scan its colliders and visualize the resulting shape points. 
+Drag detectable gameobject prefabs you have prepared onto the `Add Detectable Object` field.
 
-![Ship Dense Scan](Images/ship_scan_dense.png)
+![Detection Inspector Settings](Images/insp-detect2.png)  
 
-DetectableGameObject3D and DetectableGameObject2D share the following inspector settings:
+Here, the barrel prefab from above was added this way. Now the `Detectable Gameobject Settings By Tag` list appears. It contains the detection setting for each detectable gameobject tag. The barrel has the tag "Obstacle", hence that's the name of the first list item.
 
-### Scan At Runtime
-Whether to scan the colliders at runtime. Enable this option if runtime colliders differ from the prefab. The asteroid in the [Dogfight environment](#Example-Scenes) utilizes this option, because individual shapes are being randomized after instantiation. Otherwise, it's best to leave this unchecked, as the points get serialized and saved with the prefab, reducing the amount of work necessary at runtime.
+Importantly, its settings will later apply to *all* detectable gameobjects sharing the "Obstacle" tag. The [Driver](#Driver) example shows how different gameobjects - barrel, cone and roadblock - are all treated equally by the sensor, because they are all tagged "Obstacle". Technically, the sensor could have just used a tag list to achieve this, like Unity's grid sensor does. The reason for this particular workflow is that it enables the sensor component to read custom observable definitions from DetectableGameobject. Which makes implementing your own observables super easy, see below. 
 
-### Scan Resolution
-The distance between scan points. Tweak this value to achieve a good compromise between point count (fewer is better) and collider shape representation.
+Every type of detectable object has an `Enabled` option, determining whether it is included in the sensor observations.  
 
-### Point Count (read only)
-The resulting number of detectable points. Try a different scan resolution if the point count is 0.
+Below that, you set the object's `Detection Type` to `Position`, `Closest Point` or `Shape`. If you select the `Shape` option, another dropdown called `Modifier` appears. Modifiers change the appearance of shape points in the observed grid. By default, points are rendered as is, the corresponding option is `None`. The other options represent various fill algorithms, attempting to make a set of scatterd points appear like a solid object. `Orthogonal Fill` usually works best for roughly rectangular objects. `Dilation` is a good option for irregular shapes.
 
-### Is Scanned (read only)
-Whether the colliders have been scanned.
+### Observables
 
-### Gizmo Rescan
-Whether to continuously rescan the colliders. Enable this option if you are making changes to the object (like resizing its colliders), in order to immediately see how this affects the detectable points. Disabled at runtime.
+The nested `Observables` list contains the observables associated with the specified tag. Every detectable object type must have at least one enabled observable. There are two default observables, `Distance` and `One-Hot`, which are being added for the 3D and 2D sensor variants respectively, if no custom observables are defined.
 
-### Gizmo Draw Grid
-Set a value to draw grid cells of matching size around the detectable points. This is meant for testing purposes and is independent of sensor component settings. You can use this option for visualizing how different grid sizes and scan resolutions work together, in order to adjust your settings. Disabled at runtime.
-<br/><br/>
+Again, use the `Enabled` option to include or exclude a specific observable from detection. The `Debug` color field determines how the associated grid channel is visualized in the inspector, [see above](#Inspector-Settings). Its initial value is picked randomly.
 
-#### 3D Specific Settings:
+You can add your own observables by extending [DetectableGameObject](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs) and attach your derived component to the gameobject prefab instead. For each observable, you need to add a getter method to the class's `Observables` field, for example:
 
-### Point Reduction
-The spatial grid sensor uses a LOD system, reducing the number of points it needs to process for farther away objects. Point Reduction = 0 represents the highest detail level (all points). Change this value to see how the LOD system will affect the shape points. Again, this option is meant for testing/visualization. The actual value will be set at runtime, depending on the distance between object and sensor.
-
-### Max Reduction (read only)
-The maximum available point reduction. This value differs depending on the initial scan point count.
-<br/><br/>
-
-Back in the sensor component inspector, select `Detection Type` > `Shape` to enable shape detection. Use the `Shape Modifier` option to specify how shape points will be encoded in the observed grid. `None` will render the points as is. The other values represent different fill algorithms, attempting to make a set of points appear like a solid object. The `Shape Modifier` setting does not affect `Detection Type` > `Position` and `Closest Point`.
-<br/><br/>
-
-## Custom Observations
-
-In case you're wondering why you need to drag and drop prefabs onto the inspector, rather than just using a tag list - managing custom observations is the reason for that. Since gameobjects need a DetectableGameObject script for generating shape points anyway, I decided to utilize it for handling custom observables as well.
-
-Note that sensor inspector settings include an `Observations List`. 3D detection always entails observing the distance to an object and doesn't need any further information. In that case, the list is initially empty. 2D detection on the other hand requires at least one observable to be defined. By default, this is a *"One-Hot"* value, which is added to DetectableGameObject**2D**'s observations automatically.
-
-You can define your own observables by extending DetectableGameObject3D or DetectableGameObject2D. This allows for flexible control over agent observations. Override the `AddObservations` method like in this example:
 ```
-public class DetectableSpaceship : MBaske.Sensors.Grid.DetectableGameObject3D
+public class DangerousBarrel : MBaske.Sensors.Grid.DetectableGameObject
 {
-    // Observable float value.
-    // Normalized to between 0 and 1.
-    float m_ShieldStrength;
+    public bool IsEplosive;
+    float IsEplosiveObservable() => IsEplosive ? 1 : 0;
 
-    // Accessor method for observation.
-    float ShieldStrength() => m_ShieldStrength;
+    public float Toxicity; // Set normalized value.
+    float ToxicityObservable() => Toxicity;
 
-    public override void AddObservations()
+    public override void AddObservables()
     {
-        Observations.Add(ShieldStrength, "Shield Strength");
+        Observables.Add("Explosive", IsEplosiveObservable);
+        Observables.Add("Toxicity", ToxicityObservable);
     }
-
-    // Some logic for updating m_ShieldStrength 
-    // ...
 }
 ```
 
-(Extending DetectableGameObject**2D** like this would override the default one-hot observation.)  
+For the dangerous barrel, the component inspector now shows:
 
-Attach the subclass script to your detectable object.
+![Detection Inspector Settings](Images/insp-detect3.png)  
 
-![Ship Width Subclass](Images/ship_scan_custom.png)
+Unless our cones and roadblocks are toxic and explosive as well, we now have a problem, because those objects have the same tag "Obstacle" as the barrel. The best way of dealing with this is to assign distinct tags for every subclass of DetectableGameObject. In this case, the barrel would get its own "Barrel" tag.
 
-Custom observations implemented this way are being added to the observations list automatically. Each new observable increases the sensor's channel count, as indicated in the `Observation Shape` field on top of the sensor settings.  
+It's possible to delete all but one observable from the list by pressing its `-` button. Pressing `+` will re-add any previously removed observables. Although I'd recommend to just disable them instead. For a derived component containing custom observables, `+` will add `Distance` or `One-Hot` to the list.
 
-![Custom Observations List](Images/custom_obs_added.png)
-
-
- Like the other tagged settings, observation lists are associated with a sensor instance. If your agent uses multiple sensors, those can observe different aspects of the same object type. For instance, a long range sensor might just need to detect a spaceship's position, while a short range sensor also has to observe its shield strength and the ship's shape. Just select the appropriate options and edit the observations list for customizing a sensor instance.  
-
-Since object settings are tag specific, it is expected that custom observations for a particular tag are consistent. Don't create multiple DetectableGameObject subclasses for different gameobjects sharing the same tag. If objects are distinct with regard to their observable values, then they should have distinct tags.   
-
-Note that DetectableGameObject**3D** includes an inspector option for adding a one-hot observation without the need for extending the class.
+There are two more general detection settings:
+* `Episode Reset` - Whether to clear the DetectableGameObject cache on sensor reset at the end of each episode. The cache maps detected colliders to their DetectableGameObject instances, so that repeated GetComponent calls can be avoided. This option should be disabled if DetectableGameObject instances don't change from one episode to the next.
+* `Collider Buffer Size` - The maximum number of colliders the sensor can detect at once. The buffer size will double automatically if the buffer is maxed out.
 <br/><br/>
 
-## Sensor Settings
-
-GridSensorComponent3D (spatial) and GridSensorComponent2D (plane) share the following inspector settings:
-
-### Sensor Name
-
-The name of the sensor.
-
-### Compression Type
-
-The compression type to use for the sensor, `PNG` or `None`.
-
-### Stacked Observations
-
-The number of stacked observations. Enable stacking (set value > 1) if agents need to infer movement from observations.
-
-### Collider Buffer Size
-
-The maximum number of colliders the sensor can detect at once.
-
-### Clear Cache On Reset
-
-Whether to clear the detectable objects cache on sensor reset at the end of each episode. Should be disabled if gameobjects don't change from one episode to the next.
-
-### Detectables / Settings By Tag
-
-[See Workflow](#Workflow)
+Note that all detection settings, including `Detection Type`s and which observables to enable, are specific to a sensor component instance. Different agents can therefore detect different aspects of the same gameobject type. A careless agent for instance would not be able to detect exactly how dangerous a dangerous barrel really is, if you were to exclude the crucial observables from its particular grid sensor.
 <br/><br/>
 
-#### 3D Specific Settings:
+## Sensor Geometry
 
-![Overview 3D](Images/overview_3D.png)
+The last inspector foldout `Geometry` contains settings specific to 3D and 2D detection.
 
-### Cell Arc
+### Grid Sensor Component 3D
 
-The arc angle of a single FOV grid cell in degrees. Determines the sensor resolution:  
-`cell size at distance = PI * 2 * distance / (360 / cell arc)`  
-The scene GUI wireframe (Gizmos) shows grid cells at the maximum detection distance.
-<br/><br/>
+![Detection Inspector Settings](Images/scene-3d.png)  
+
+* `Sensor Resolution` (read only) - The size of individual grid cells at the maximum specified distance.  
+Visualized by the scene GUI wireframe.
+* `Cell Arc` - The arc angle of a single FOV grid cell in degrees. Determines the sensor resolution:  
+`cell size at distance = PI * 2 * distance / (360 / cell arc)` 
+
 Use GUI handles or the settings below for constraining the sensor's field of view. Effective angles are rounded up depending on the `Cell Arc` value. Note that because of the projection of polar coordinates to grid pixels, positions near the poles appear increasingly distorted. If that becomes an issue, you can try adding multiple sensors with smaller FOVs and point them in different directions.
 
-### Lat Angle North
-
-The FOV's northern latitude (up) angle in degrees.
-
-### Lat Angle South
-
-The FOV's southern latitude (down) angle in degrees.
-
-### Lon Angle
-
-The FOV's longitude (left & right) angle in degrees.
-
-### Min Distance
-
-The minimum detection distance (near clipping).
-
-### Max Distance
-
-The maximum detection distance (far clipping).
-
-### Normalization
-
-How to normalize object distances. 1 for linear normalization. Set value to < 1 if observing distance changes at close range is more critical to agents than what happens farther away.
+* `Lat Angle North` - The FOV's northern latitude (up) angle in degrees.
+* `Lat Angle South` - The FOV's southern latitude (down) angle in degrees.
+* `Lon Angle` - The FOV's longitude (left & right) angle in degrees.
+* `Min Distance` - The minimum detection distance (near clipping).
+* `Max Distance` - The maximum detection distance (far clipping).
+* `Normalization` - How to normalize object distances. 1 for linear normalization. Set value to < 1 if observing distance changes at close range is more critical to agents than what happens farther away.
 <br/><br/>
 
-#### 2D Specific Settings:
+### Grid Sensor Component 2D
 
-![Overview 2D](Images/overview_2D.png)
+![Overview 2D](Images/scene-2d.png)
 
-### Rotation Type
-
-Whether to rotate the sensor with the agent's transform.
-* `Agent Y` - Rotate around Y-axis only, sensor is aligned with agent forward.
-* `Agent XYZ` - Rotate around all axes, sensor is aligned with agent rotation.
-* `None` - Ignore agent rotation, sensor is aligned with world forward axis.
-
-### Cell Size
-
-X/Z size of individual grid cells.
-
-### Num Cells
-
-The number of grid cells per axis.
-
-### Detection Size (read only)
-
-Actual detection bounds size of the grid sensor. Values are rounded to match `Cell Size`. Visualized by the blue box in scene view (Gizmos).
-
-### Bounds Size
-
-Unrounded detection bounds used for editing, visualized by the white box in scene view (Gizmos). Use gizmo handles to move and change size.  
-Available key commands in scene GUI:  
-* S - Snap to cell size.
-* C - Center on X-axis.
-* Shift+C - Center on all axes.
-
-### Offset
-
-Detection offset from sensor transform position.
+* `Rotation Type` - Whether and how to rotate the sensor with the agent's transform.
+    - `Agent Y` - Rotate around Y-axis only, sensor is aligned with agent forward.
+    - `Agent XYZ` - Rotate around all axes, sensor is aligned with agent rotation.
+    - `None` - Ignore agent rotation, sensor is aligned with world forward axis.
+* `Cell Size` - X/Z size of individual grid cells.
+* `Num Cells` - The number of grid cells per axis.
+* `Detection Size (read only)` - Actual detection bounds size of the grid sensor.  
+Values are rounded to match `Cell Size`.  
+Visualized by the blue box in scene view (Gizmos).
+* `Bounds Size` - Unrounded detection bounds used for editing.  
+Visualized by the white box in scene view (Gizmos).  
+Use gizmo handles to move and change size. Available key commands in scene GUI:  
+    - `S` - Snap to cell size.
+    - `C` - Center on X-axis.
+    - `Shift+C` - Center on all axes.
+* `Offset` - Detection offset from sensor transform position.
 <br/><br/>
 
-## Differences from Eidos Grid Sensor (ML-Agents v1.9.0)
+# Examples
 
-[Eidos' Grid Sensor](https://blogs.unity3d.com/2020/11/20/how-eidos-montreal-created-grid-sensors-to-improve-observations-for-training-agents/) was designed to detect game objects on a 2D plane. To that end, it invokes physics overlap calls for every grid cell, parses the found colliders and generates the resulting grid entries. This is a straight forward approach which requires far less code than my implementation with all the abstraction and generalization I was aiming for.   
-Comparing it to my 2D sensor variant, here are the advantages of each sensor the way I see them:
-* The Eidos sensor is easier to set up. Unless you want custom observable values, objects don't need any particular scripts attached for being detectable. 
-* Its Gizmo drawing is more informative than that of my sensor, insofar as it directly visualizes how object detection translates to grid cells in scene view. Since detection and encoding are conceptually separate runtime processes for my sensor, you'll need to use the [GridSensorGUI](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorGUI.cs) component for displaying its grid output.
-* My sensor is considerably faster for large or multiple grids. This is because of the individual overlap calls the Eidos sensor does for every cell - they add up. By contrast, my sensor performs a single overlap call per update step, loops through the detected colliders, retrieves their associated points and transforms them into the sensor's frame of reference. An A/B comparison in the [Food Collector Environment](https://github.com/Unity-Technologies/ml-agents/blob/main/docs/Learning-Environment-Examples.md#food-collector) showed that CPU training time can be reduced by one third using my sensor (running eight executables). In-editor Burst inference produced 2x to 3x higher framerates.
-* Custom observations can be added easily with my sensor as [described above](#Custom-Observations). Although Eidos' sensor supports custom values too, they aren't as comfortable to implement, since that requires overriding the sensor's GetObjectData method as well as providing values on gameobjects themselves.
+**For some reason, the serialized sensor settings might not get imported correctly with the prefabs when opening the project, causing some detectable tags to be missing. Open the [Assets/Examples/!Reimport/](https://github.com/mbaske/grid-sensor/tree/dev/Assets/Examples/!Reimport) folder and reimport "CarWithSensors", "SpaceshipWithSensors" and "FoodCollectorAgent". This should ensure that all settings will be restored the way I saved them.** ([Possibly related issue](https://forum.unity.com/threads/data-corruption-with-prefab-import-with-new-prefab-workflow-still.660037/))
 
-Obviously, this is just my subjective take on the matter. You might find other things you like or dislike about the sensors.
+## Maze Explorer
+An agent moves stepwise through a random maze. Its grid sensor observes 3 channels: walls, food and visit values. Walls and food are one-hot observables. The visit value for each maze cell increases everytime the agent moves onto, or stays on it (enable `Debug > Draw Grid Buffer`). An episode ends when any of the cells' visit value reaches 1. Rewards are inversely proportional to this value: +0.5 for every new cell the agent discovers, and incrementally less if it stays or returns to it. The reward for finding food is +1. I didn't enable action masking when training the policy, the agent was instead penalized with a value of -1 when it wanted to move onto an occupied cell. The full maze state is stored in a [GridBuffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridBuffer.cs). In the [MazeAgent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Examples/MazeExplorer/Scripts/MazeAgent.cs#L261) code, a small section of it (agent's vicinity) is repeatedly being copied to the [GridSensorComponent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/GridSensorComponent.cs)'s [ColorGridBuffer](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/Basic/Sensor/ColorGridBuffer.cs).
+
+## Dogfight
+
+Agents control spaceships flying through an asteroid field, using discrete actions for throttle, pitch and roll. Each agent observes its surroundings with two [GridSensorComponent3D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent3D.cs)s. A front-facing sensor detects the distances and shapes of asteroids. An omnidirectional long-range sensor detects other ships' positions, adding a stacked observation to indicate movement. Agents are rewarded for speed while following opponents, and penalized for being followed as well as for collisions. As stated above, the asteroids' shapes are being randomized and scanned at initialization, which can take a few seconds.
+
+## Driver
+
+Combines [GridSensorComponent3D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent3D.cs) and [GridSensorComponent2D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent2D.cs). The agent uses continuous actions for driving a car down a procedurally generated road. It detects roadside poles and various obstacles with its two sensors. A long-range 3D sensor enables the agent to look ahead, while a short-range 2D sensor helps with evading obstacles. Again, the agent is rewarded for speed and penalized for collisions.
+
+## Food Collector
+
+This is the Food Collector scene from the ML-Agents examples. I modified it slightly for my [GridSensorComponent2D](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Sensor/GridSensorComponent2D.cs): an agent's frozen state isn't indicated by switching tags any longer. Instead, the [DetectableAgent](https://github.com/mbaske/grid-sensor/blob/master/Assets/Examples/FoodCollector/Scripts/DetectableAgent.cs) component was attached to agents, adding a custom one-hot observation for their state. I also attached plain DetectableGameObject components to food, bad food and wall prefabs. The original walls were a single mesh, I split it up into four segments.
 <br/><br/>
 
-## Example Scenes
+# Dependencies
 
-### Dogfight
-
-Agents control spaceships flying through an asteroid field, using discrete actions for throttle, pitch and roll. Each agent observes its surroundings using two spatial grid sensors. A front-facing sensor detects the distances and shapes of asteroids. An omnidirectional long-range sensor detects other ships' positions, adding a stacked observation to indicate movement. Agents are rewarded for speed while following opponents, and penalized for being followed as well as for collisions.
-
-### Driver
-
-Combines 3D and 2D detection. The agent uses continuous actions for driving a car down a procedurally generated road. It detects roadside poles and various obstacles with two sensors. A long-range 3D sensor enables the agent to look ahead, while a short-range 2D sensor helps with evading obstacles. Again, the agent is rewarded for speed and penalized for collisions.
-
-**For some reason, the serialized sensor settings might not get imported correctly with the prefabs when opening the project, causing some detectable tags to be missing. Go to Assets/Examples/ReImport/ and reimport *CarWithSensors* and *SpaceshipWithSensors*.** ([Possibly related issue](https://forum.unity.com/threads/data-corruption-with-prefab-import-with-new-prefab-workflow-still.660037/))
-<br/><br/>
-
-## Utility Components
-
-### GridSensorGUI
-
-Add a [GridSensorGUI](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorGUI.cs) component for drawing the observed grid into a GUI texture. See Driver example, DriverAgent/Car/LongRangeSensor and DriverAgent/Car/ShortRangeSensor.
-
-### GridSensorUpdater
-
-Add a [GridSensorUpdater](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorUpdater.cs) component for creating and updating a standalone sensor. This is meant for testing a sensor not associated with an agent. See Dogfight example, Main Camera/FrontSensor and Main Camera/LongRangeSensor.
-
-### GridSensorComponentProxy
-
-The [GridSensorComponentProxy](https://github.com/mbaske/grid-sensor/tree/master/Assets/Scripts/Sensors/Grid/Shared/Util/GridSensorComponentProxy.cs) stands in for a grid sensor component to whom it forwards method calls. This can be useful if the sensor must be detached from the agent's gameobject. See DriverProxyTest example, DriverAgentProxyTest.
+* [ML-Agents 2.1](https://docs.unity3d.com/Packages/com.unity.ml-agents@2.1/manual/index.html)
+* [NaughtyAttributes](https://github.com/dbrizov/NaughtyAttributes)
