@@ -118,7 +118,7 @@ The shape scanning algorithm splits gameobjects into separate *volumes*, if ther
 
 ## Detection Settings
 
-A newly added GridSensorComponent2D or GridSensorComponent3D component can't detect anything, because it is unaware of any detectable gameobject types.
+A newly added GridSensorComponent2D or GridSensorComponent3D can't detect anything, because it is unaware of any detectable gameobject types.
 
 ![Detection Inspector Settings](Images/insp-detect1.png)  
 
