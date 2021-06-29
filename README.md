@@ -140,7 +140,7 @@ The nested `Observables` list contains the observables associated with the speci
 
 Again, use the `Enabled` option to include or exclude a specific observable from detection. The `Debug` color field determines how the associated grid channel is visualized in the inspector, [see above](#Inspector-Settings). Its initial value is picked randomly.
 
-You can add your own observables by extending [DetectableGameObject](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs) and attach your derived component to the gameobject prefab instead. For each observable, you need to add a getter method to the class's `Observables` field, for example:
+You can add your own observables by extending [DetectableGameObject](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs) and attaching your derived component to the gameobject prefab instead. For each observable, you need to add a getter method to the class's `Observables` field, for example:
 
 ```
 public class DangerousBarrel : MBaske.Sensors.Grid.DetectableGameObject
