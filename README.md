@@ -1,6 +1,6 @@
 
 # Grid Sensors for Unity ML-Agents - Version 2.0
-This is a collection of Grid Sensors for the [Unity Machine Learning Agents Toolkit](https://github.com/Unity-Technologies/ml-agents).  
+This is a collection of Grid Sensor Components for the [Unity Machine Learning Agents Toolkit](https://github.com/Unity-Technologies/ml-agents).  
 It is compatible with [v2.1.0 / release 18](https://github.com/Unity-Technologies/ml-agents/releases/tag/release_18). You can find the previous version for v1.9.0 / release 15 [here](https://github.com/mbaske/grid-sensor/tree/version1).
 
 * [What's new in Version 2.0](#What's-new-in-Version-2.0)  
