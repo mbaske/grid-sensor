@@ -101,7 +101,7 @@ For shape detection on the other hand, it is necessary to generate a set of poin
 
 ![Shape Inspector Settings](Images/insp-shape.png)  
 
-Open your detectable gameobject's prefab and enable Gizmos to see how different settings produce various sets of points. The 3D sensor variant uses levels of detail for reducing the amount of points it needs to process, depending on the distance between sensor and object. For 2D, the specified LOD is fixed because detectable points don't change with distance. 
+Open your detectable gameobject prefab and enable Gizmos to see how different settings produce various sets of points. The 3D sensor variant uses levels of detail for reducing the amount of points it needs to process, depending on the distance between sensor and object. For 2D, the specified LOD is fixed because detectable points don't change with distance. 
 
 The shape scanning algorithm splits gameobjects into separate *volumes*, if there are multiple disconnected colliders. It then tries to find matching LODs, which works best for similar sized colliders. If your object only has a single or compound collider, you don't need to worry about this.
 
@@ -127,7 +127,7 @@ Drag detectable gameobject prefabs you have prepared onto the `Add Detectable Ob
 
 ![Detection Inspector Settings](Images/insp-detect2.png)  
 
-Here, the barrel prefab from above was added this way. Now the `Detectable Gameobject Settings By Tag` list appears. It contains the detection setting for each detectable gameobject tag. The barrel has the tag "Obstacle", hence that's the name of the first list item.
+Here, the barrel prefab from above was added this way. Now the `Detectable Gameobject Settings By Tag` list appears. It contains the detection settings for each detectable gameobject tag. The barrel has the tag "Obstacle", hence that's the name of the first list item.
 
 Importantly, its settings will later apply to *all* detectable gameobjects sharing the "Obstacle" tag. The [Driver](#Driver) example shows how different gameobjects - barrel, cone and roadblock - are all treated equally by the sensor, because they are all tagged "Obstacle". Technically, the sensor could have just used a tag list to achieve this, like Unity's grid sensor does. The reason for this particular workflow is that it enables the sensor component to read custom observable definitions from DetectableGameobject. Which makes implementing your own observables super easy, see below. 
 
