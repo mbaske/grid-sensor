@@ -161,13 +161,12 @@ public class DangerousBarrel : MBaske.Sensors.Grid.DetectableGameObject
 ```
 
 For the dangerous barrel, the component inspector looks like this.   
-(`Distance` was added by pressing the list's `+` button after dragging the prefab onto the `Add Detectable Object` field).
 
 ![Detection Inspector Settings](Images/insp-detect3.png)  
 
 Unless our cones and roadblocks are toxic and explosive as well, we now have a problem, because those objects have the same tag "Obstacle" as the barrel. The best way of dealing with this is to assign distinct tags for every subclass of DetectableGameObject. In this case, the barrel would get its own "Barrel" tag.
 
-It's possible to delete all but one observable from the list by pressing its `-` button. Pressing `+` will re-add any previously removed observables. Although I'd recommend to just disable them instead. For a derived component containing custom observables, `+` will add `Distance` or `One-Hot` to the list.
+It's possible to delete all but one observable from the list by pressing its `-` button. Pressing `+` will re-add any previously removed observables. Although I'd recommend to just disable them instead. For a derived component containing custom observables, `+` will add `Distance` or `One-Hot` to the list. In the above screenshot, `Distance` was added via the `+` button after dragging the "DangerousBarrel" prefab onto the `Add Detectable Object` field.
 
 There are two more general detection settings:
 * `Episode Reset` - Whether to clear the DetectableGameObject cache on sensor reset at the end of each episode. The cache maps detected colliders to their DetectableGameObject instances, so that repeated GetComponent calls can be avoided. This option should be disabled if DetectableGameObject instances don't change from one episode to the next.
