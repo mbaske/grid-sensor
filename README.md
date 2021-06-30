@@ -160,7 +160,8 @@ public class DangerousBarrel : MBaske.Sensors.Grid.DetectableGameObject
 }
 ```
 
-For the dangerous barrel, the component inspector looks like this (`Distance` was added by pressing the list's `+` button).
+For the dangerous barrel, the component inspector looks like this.   
+(`Distance` was added by pressing the list's `+` button after dragging the prefab onto the `Add Detectable Object` field).
 
 ![Detection Inspector Settings](Images/insp-detect3.png)  
 
