@@ -178,7 +178,7 @@ Note that all detection settings, including `Detection Type`s and which observab
 
 ## Sensor Geometry
 
-The last inspector foldout `Geometry` contains settings specific to 3D and 2D detection.
+The last inspector foldout `Geometry` contains specific settings for 3D and 2D detection types.
 
 ### Grid Sensor Component 3D
 
