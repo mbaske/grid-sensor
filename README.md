@@ -160,7 +160,7 @@ public class DangerousBarrel : MBaske.Sensors.Grid.DetectableGameObject
 }
 ```
 
-For the dangerous barrel, the component inspector looks like this.   
+For the dangerous barrel, the component inspector looks like this:
 
 ![Detection Inspector Settings](Images/insp-detect3.png)  
 
