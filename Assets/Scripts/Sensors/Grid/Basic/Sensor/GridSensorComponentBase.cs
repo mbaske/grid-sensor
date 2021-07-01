@@ -247,11 +247,11 @@ namespace MBaske.Sensors.Grid
             if (Application.isPlaying)
             {
                 EditorUtil.HideBehaviorParametersEditor();
-            }
 
-            CoroutineUtil.Stop(this, m_Debug_OnSensorCreated);
-            m_Debug_OnSensorCreated = new InvokeAfterFrames(
-                this, Debug_ToggleDrawGridBuffer).Coroutine;
+                CoroutineUtil.Stop(this, m_Debug_OnSensorCreated);
+                m_Debug_OnSensorCreated = new InvokeAfterFrames(
+                    this, Debug_ToggleDrawGridBuffer).Coroutine;
+            }
 #endif
 
 
