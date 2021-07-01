@@ -14,6 +14,7 @@ namespace MBaske.Sensors.Grid
     public class GridEditor3D : Editor
     {
         private GridSensorComponent3D m_Comp;
+        private Quaternion[,] m_Wireframe;
 
         private ArcHandle m_ArcHandleLatN;
         private ArcHandle m_ArcHandleLatS;
@@ -158,11 +159,10 @@ namespace MBaske.Sensors.Grid
 
         private void DrawWireFrame()
         {
-            var shape = m_Comp.GridShape;
-            int nLon = shape.Width;
-            int nLat = shape.Height;
-            Quaternion[,] wf = m_Comp.GetWireframe(nLon + 1, nLat + 1);
-
+            GeomUtil3D.CalcGridRotations(m_Comp.CellArc, 
+                m_Comp.LonLatRect, m_Comp.GridShape, 
+                ref m_Wireframe);
+            
             EditorUtil.GLMaterial.SetPass(0);
 
             GL.PushMatrix();
@@ -172,14 +172,17 @@ namespace MBaske.Sensors.Grid
             Vector3 max = Vector3.forward * m_Comp.MaxDistance;
 
             // Grid Cells
-            
+
+            int nLon = m_Comp.GridShape.Width;
+            int nLat = m_Comp.GridShape.Height;
+
             for (int iLat = 0; iLat <= nLat; iLat++)
             {
                 GL.Begin(GL.LINE_STRIP);
                 GL.Color(s_WireColorA);
                 for (int iLon = 0; iLon <= nLon; iLon++)
                 {
-                    var v = wf[iLat, iLon] * max;
+                    var v = m_Wireframe[iLon, iLat] * max;
                     GL.Vertex3(v.x, v.y, v.z);
                 }
                 GL.End();
@@ -191,23 +194,23 @@ namespace MBaske.Sensors.Grid
                 GL.Color(s_WireColorA);
                 for (int iLat = 0; iLat <= nLat; iLat++)
                 {
-                    var v = wf[iLat, iLon] * max;
+                    var v = m_Wireframe[iLon, iLat] * max;
                     GL.Vertex3(v.x, v.y, v.z);
                 }
                 GL.End();
             }
 
             // Angles
-          
+
             if (m_Comp.LatAngleSouth < 90)
             {
                 GL.Begin(GL.LINES);
                 GL.Color(s_WireColorB);
                 for (int iLon = 0; iLon <= nLon; iLon++)
                 {
-                    var a = wf[0, iLon] * min;
+                    var a = m_Wireframe[iLon, 0] * min;
                     GL.Vertex3(a.x, a.y, a.z);
-                    var b = wf[0, iLon] * max;
+                    var b = m_Wireframe[iLon, 0] * max;
                     GL.Vertex3(b.x, b.y, b.z);
                 }
                 GL.End();
@@ -219,9 +222,9 @@ namespace MBaske.Sensors.Grid
                 GL.Color(s_WireColorB);
                 for (int iLon = 0; iLon <= nLon; iLon++)
                 {
-                    var a = wf[nLat, iLon] * min;
+                    var a = m_Wireframe[iLon, nLat] * min;
                     GL.Vertex3(a.x, a.y, a.z);
-                    var b = wf[nLat, iLon] * max;
+                    var b = m_Wireframe[iLon, nLat] * max;
                     GL.Vertex3(b.x, b.y, b.z);
                 }
                 GL.End();
@@ -233,9 +236,9 @@ namespace MBaske.Sensors.Grid
                 GL.Color(s_WireColorB);
                 for (int iLat = 0; iLat <= nLat; iLat++)
                 {
-                    var a = wf[iLat, 0] * min;
+                    var a = m_Wireframe[0, iLat] * min;
                     GL.Vertex3(a.x, a.y, a.z);
-                    var b = wf[iLat, 0] * max;
+                    var b = m_Wireframe[0, iLat] * max;
                     GL.Vertex3(b.x, b.y, b.z);
                 }
                 GL.End();
@@ -244,9 +247,9 @@ namespace MBaske.Sensors.Grid
                 GL.Color(s_WireColorB);
                 for (int iLat = 0; iLat <= nLat; iLat++)
                 {
-                    var a = wf[iLat, nLon] * min;
+                    var a = m_Wireframe[nLon, iLat] * min;
                     GL.Vertex3(a.x, a.y, a.z);
-                    var b = wf[iLat, nLon] * max;
+                    var b = m_Wireframe[nLon, iLat] * max;
                     GL.Vertex3(b.x, b.y, b.z);
                 }
                 GL.End();

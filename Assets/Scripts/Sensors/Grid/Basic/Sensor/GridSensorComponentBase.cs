@@ -10,9 +10,10 @@ using System;
 namespace MBaske.Sensors.Grid 
 {
     /// <summary>
-    /// Component that wraps a single <see cref="Grid.GridSensor"/> instance.
+    /// Abstract base class for component that wraps a single 
+    /// <see cref="Grid.GridSensor"/> instance.
     /// </summary>
-    public class GridSensorComponentBase : SensorComponent, IDisposable
+    public abstract class GridSensorComponentBase : SensorComponent, IDisposable
     {
         // Info.
         [SerializeField, ReadOnly]
@@ -247,10 +248,13 @@ namespace MBaske.Sensors.Grid
             {
                 EditorUtil.HideBehaviorParametersEditor();
             }
-            // Debug: handle sensor created on end of frame.
-            StopRunningCoroutine(m_Debug_CR_SensorCreatedEOF);
-            m_Debug_CR_SensorCreatedEOF = RunCoroutine(Debug_CR_SensorCreatedEOF());
+
+            CoroutineUtil.Stop(this, m_Debug_OnSensorCreated);
+            m_Debug_OnSensorCreated = new InvokeAfterFrames(
+                this, Debug_ToggleDrawGridBuffer).Coroutine;
 #endif
+
+
             m_GridSensor = new GridSensor(
                 m_SensorName, m_GridBuffer, m_CompressionType, m_ObservationType);
 
@@ -267,55 +271,14 @@ namespace MBaske.Sensors.Grid
 
 #if (UNITY_EDITOR)
 
-        private IEnumerator m_Debug_CR_SensorCreatedEOF;
-
-        private IEnumerator Debug_CR_SensorCreatedEOF()
-        {
-            yield return new WaitForEndOfFrame();
-            Debug_ToggleDrawGridBuffer();
-        }
-
+        private IEnumerator m_Debug_OnSensorCreated;
 
         #region Debug Methods 
 
-        // Grid Drawer / DebugChannelData.
-
-        // Assuming HasSensor.
-        private DebugChannelData Debug_CreateChannelData()
-        {
-            if (m_GridSensor.AutoDetectionEnabled)
-            {
-                // TODO Assuming IEncoder writes grid positions to DebugChannelData.
-                // Might want to parameterize this at some point.
-                return DebugChannelData.FromSettings(m_GridSensor.Encoder.Settings);
-            }
-
-            if (m_ChannelLabels != null && m_ChannelLabels.Count > 0)
-            {
-                return DebugChannelData.FromLabels(m_ChannelLabels);
-            }
-
-            // Fallback.
-
-            int n = m_GridShape.NumChannels;
-            var labels = new List<ChannelLabel>(n);
-
-            for (int i = 0; i < n; i++)
-            {
-                labels.Add(new ChannelLabel(
-                    "Observation " + i, 
-                    Color.HSVToRGB(i / (float)n, 1, 1)));
-            }
-
-            return DebugChannelData.FromLabels(labels, false);
-        }
-
+        // Invoked on sensor creation and on m_Debug_DrawGridBuffer toggle change.
         private void Debug_ToggleDrawGridBuffer()
         {
-            // TODO It should be clearer which sensor features are enabled
-            // in editor vs play mode. Debug grid drawing is supposed to 
-            // be runtime only. 
-            if (HasSensor && Application.isPlaying)
+            if (Debug_HasRuntimeSensor())
             {
                 if (m_Debug_DrawGridBuffer != m_Debug_DrawGridBufferEnabled)
                 {
@@ -324,7 +287,6 @@ namespace MBaske.Sensors.Grid
             }
         }
 
-        // Assuming HasSensor.
         private void Debug_SetDrawGridBufferEnabled(bool enabled, bool standby = false)
         {
             if (enabled)
@@ -333,8 +295,7 @@ namespace MBaske.Sensors.Grid
                 m_Debug_ChannelData = Debug_CreateChannelData();
                 m_GridSensor.UpdateEvent += m_Debug_GridBufferDrawer.OnSensorUpdate;
                 ((IDebugable)m_GridSensor.Encoder)?.SetDebugEnabled(true, m_Debug_ChannelData);
-                StopRunningCoroutine(m_Debug_CR_EnableEOF);
-                m_Debug_CR_EnableEOF = RunCoroutine(Debug_CR_EnableEOF());
+                m_Debug_GridBufferDrawer.Enable(this, m_Debug_ChannelData, m_GridBuffer);
             }
             else
             {
@@ -356,12 +317,36 @@ namespace MBaske.Sensors.Grid
             m_Debug_DrawGridBufferEnabled = enabled;
         }
 
-        private IEnumerator m_Debug_CR_EnableEOF;
-
-        private IEnumerator Debug_CR_EnableEOF()
+        private DebugChannelData Debug_CreateChannelData()
         {
-            yield return new WaitForEndOfFrame();
-            m_Debug_GridBufferDrawer.Enable(this, m_Debug_ChannelData, m_GridBuffer);
+            // Create from settings.
+            if (HasSensor && m_GridSensor.AutoDetectionEnabled)
+            {
+                // TODO Assuming IEncoder writes grid positions to DebugChannelData.
+                // Might want to parameterize this at some point.
+                return DebugChannelData.FromSettings(m_GridSensor.Encoder.Settings);
+            }
+
+
+            // Create from labels provided via ChannelLabels property.
+            if (m_ChannelLabels != null && m_ChannelLabels.Count > 0)
+            {
+                return DebugChannelData.FromLabels(m_ChannelLabels);
+            }
+
+
+            // Create fallback labels.
+            int n = m_GridShape.NumChannels;
+            var labels = new List<ChannelLabel>(n);
+
+            for (int i = 0; i < n; i++)
+            {
+                labels.Add(new ChannelLabel(
+                    "Observation " + i,
+                    Color.HSVToRGB(i / (float)n, 1, 1)));
+            }
+
+            return DebugChannelData.FromLabels(labels, false);
         }
 
 
@@ -401,7 +386,7 @@ namespace MBaske.Sensors.Grid
 
         private void Debug_CreateSensorOnValidate()
         {
-            if (HasSensor && m_Debug_CreateSensorOnAwake && m_Debug_CreateSensorOnValidate)
+            if (Debug_HasRuntimeSensor() && m_Debug_CreateSensorOnAwake && m_Debug_CreateSensorOnValidate)
             {
                 // Debug grid drawer standby during sensor refresh.
                 Debug_SetDrawGridBufferEnabled(false, true);
@@ -423,6 +408,12 @@ namespace MBaske.Sensors.Grid
                 m_Debug_FrameCount++;
             }
         }
+
+        private bool Debug_HasRuntimeSensor()
+        {
+            return Application.isPlaying && HasSensor;
+        }
+
 
         private void Awake()
         {
@@ -480,24 +471,5 @@ namespace MBaske.Sensors.Grid
         /// Cleans up internal objects.
         /// </summary>
         public virtual void Dispose() { }
-
-
-        private IEnumerator RunCoroutine(IEnumerator coroutine)
-        {
-            if (isActiveAndEnabled)
-            {
-                StartCoroutine(coroutine);
-            }
-
-            return coroutine;
-        }
-
-        private void StopRunningCoroutine(IEnumerator coroutine)
-        {
-            if (coroutine != null)
-            {
-                StopCoroutine(coroutine);
-            }
-        }
     }
 }

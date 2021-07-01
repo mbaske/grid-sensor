@@ -46,9 +46,11 @@ namespace MBaske.Sensors.Grid
         {
             ChannelData = channelData;
             Buffer = buffer;
+            GridSizeRatio = buffer.Height / (float)buffer.Width;
+
             Context = context;
             m_RepaintOnFirstUpdate = true;
-            GridSizeRatio = buffer.Height / (float)buffer.Width;
+            m_StopRepaintCoroutine ??= StopRepaintCoroutine();
 
             IsEnabled = true;
             IsStandby = false;
@@ -96,13 +98,7 @@ namespace MBaske.Sensors.Grid
         {
             if (Context != null)
             {
-                if (m_StopRepaintCoroutine != null)
-                {
-                    Context.StopCoroutine(m_StopRepaintCoroutine);
-                }
-                m_StopRepaintCoroutine = StopRepaintCoroutine();
-                Context.StartCoroutine(m_StopRepaintCoroutine);
-
+                CoroutineUtil.Start(Context, m_StopRepaintCoroutine);
                 m_Repaint = true;
             }
         }

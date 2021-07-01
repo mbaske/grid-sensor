@@ -4,13 +4,34 @@ using UnityEngine;
 
 namespace MBaske.Sensors.Util
 {
+    public static class CoroutineUtil
+    {
+        public static void Start(MonoBehaviour context, IEnumerator coroutine)
+        {
+            Stop(context, coroutine);
+
+            if (context.isActiveAndEnabled)
+            {
+                context.StartCoroutine(coroutine);
+            }
+        }
+
+        public static void Stop(MonoBehaviour context, IEnumerator coroutine)
+        {
+            if (coroutine != null)
+            {
+                context.StopCoroutine(coroutine);
+            }
+        }
+    }
+
     /// <summary>
     /// Invokes callback after specified number of frames.
     /// </summary>
-    // TODO Probably not the best idea to put a coroutine INSIDE
-    // of a yield instruction, but it allows for a nice one-liner.
     public class InvokeAfterFrames : CustomYieldInstruction
     {
+        public IEnumerator Coroutine { get; private set; }
+
         private readonly int m_TargetFrameCount;
 
         /// <summary>
@@ -22,12 +43,13 @@ namespace MBaske.Sensors.Util
         public InvokeAfterFrames(MonoBehaviour context, Action callback, int numberOfFrames = 1)
         {
             m_TargetFrameCount = Time.frameCount + numberOfFrames;
-            context.StartCoroutine(Coroutine(callback));
+            Coroutine = FrameCoroutine(callback);
+            context.StartCoroutine(Coroutine);
         }
 
         public override bool keepWaiting => Time.frameCount < m_TargetFrameCount;
 
-        private IEnumerator Coroutine(Action callback)
+        private IEnumerator FrameCoroutine(Action callback)
         {
             yield return this;
             callback.Invoke();

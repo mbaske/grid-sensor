@@ -187,24 +187,6 @@ namespace MBaske.Sensors.Grid
         [SerializeField, HideInInspector]
         private float m_GridResolution;
 
-        // Unscaled frustum side values.
-        [SerializeField, HideInInspector]
-        private Vector4 m_FrustumSides;
-        // Enable frustum if all FOV angles < thresh.
-        private const float c_FrustumThresh = 87;
-
-        // Quaternion array for drawing the scene GUI wireframe.
-        [SerializeField, HideInInspector]
-        private Quaternion[,] m_Wireframe;
-
-        public Quaternion[,] GetWireframe(int nLon, int nLat)
-        {
-            if (m_Wireframe == null || nLon * nLat != m_Wireframe.Length)
-            {
-                UpdateGeometry();
-            }
-            return m_Wireframe;
-        }
 
         /// <summary>
         /// Invoked by <see cref="GridEditorHelper3D"/>.
@@ -215,7 +197,7 @@ namespace MBaske.Sensors.Grid
 
             // Will update grid shape info.
             UpdateGeometry();
-            // TODO Save initial state?
+   
             SaveState(OnFOVChange, "Grid Sensor FOV Change");
             SaveState(OnDistanceChange, "Grid Sensor Distance Change");
         }
@@ -227,6 +209,7 @@ namespace MBaske.Sensors.Grid
                 Result = new DetectionResult(
                     m_GameObjectSettingsMeta.DetectableTags, 
                     ColliderBufferSize),
+
                 Settings = m_GameObjectSettingsMeta,
                 ColliderBufferSize = ColliderBufferSize,
                 ClearCacheOnReset = ClearCacheOnReset,
@@ -252,94 +235,19 @@ namespace MBaske.Sensors.Grid
             {
                 MinRadius = MinDistance,
                 MaxRadius = MaxDistance,
-                LonLatRect = LonLatRect,
-                FrustumSides = m_FrustumSides
+                LonLatRect = LonLatRect
             };
         }
 
         private void UpdateGeometry()
         {
-            m_GridResolution = Mathf.PI * 2 * m_MaxDistance / (360 / m_CellArc);
-
-            float lonMin = -m_LonAngle;
-            float lonMax = m_LonAngle;
-            float latMin = -m_LatAngleSouth;
-            float latMax = m_LatAngleNorth;
-
-            float lonRange = lonMax - lonMin;
-            float latRange = latMax - latMin;
-
-            int nLon = Mathf.Max(1, Mathf.CeilToInt(lonRange / m_CellArc));
-            int nLat = Mathf.Max(1, Mathf.CeilToInt(latRange / m_CellArc));
-
-            float lonRangePadded = nLon * m_CellArc;
-            float latRangePadded = nLat * m_CellArc;
-
-            float lonPadding = (lonRangePadded - lonRange) * 0.5f;
-            float latPadding = (latRangePadded - latRange) * 0.5f;
-
-            float lonMinPad = lonMin - lonPadding;
-            float lonMinPadClamp = Mathf.Max(-180, lonMinPad);
-            float lonMaxPadClamp = Mathf.Min(180, lonMax + lonPadding);
-
-            float latMinPad = latMin - latPadding;
-            float latMinPadClamp = Mathf.Max(-90, latMinPad);
-            float latMaxPadClamp = Mathf.Min(90, latMax + latPadding);
-
-            m_LonLatRect = new Rect(
-                lonMinPadClamp,
-                latMinPadClamp,
-                lonMaxPadClamp - lonMinPadClamp,
-                latMaxPadClamp - latMinPadClamp);
-
-            if (lonMaxPadClamp < c_FrustumThresh &&
-                latMaxPadClamp < c_FrustumThresh && 
-                latMinPadClamp > -c_FrustumThresh)
-            {
-                // Calculate frustum values that fit curved FOV. 
-
-                var qLon = Quaternion.AngleAxis(lonMaxPadClamp, Vector3.up);
-                var qLat = Quaternion.AngleAxis(latMinPadClamp, Vector3.left);
-                Vector3 b = qLon * qLat * Vector3.forward;
-                b.x = 0;
-                qLat = Quaternion.AngleAxis(latMaxPadClamp, Vector3.left);
-                Vector3 t = qLon * qLat * Vector3.forward;
-                t.x = 0;
-
-                float f = Mathf.Deg2Rad;
-                m_FrustumSides = new Vector4
-                {
-                    x = Mathf.Tan(m_LonLatRect.width * 0.5f * f), // left/right
-                    y = Mathf.Tan(Vector3.Angle(Vector3.forward, b) * f), // bottom 
-                    z = Mathf.Tan(Vector3.Angle(Vector3.forward, t) * f), // top
-                    w = 1 // flag enabled
-                };
-            }
-            else
-            {
-                m_FrustumSides = Vector4.zero;
-            }
+            m_GridResolution = GeomUtil3D.GetGridResolution(m_CellArc, m_MaxDistance);
+            m_LonLatRect = GeomUtil3D.GetLonLatRect(m_CellArc, 
+                m_LonAngle, m_LatAngleSouth, m_LatAngleNorth, 
+                out int nLon, out int nLat);
 
             UpdateGridSize(nLon, nLat);
             UpdateResolutionInfo();
-
-            // Scene GUI Wireframe.
-
-            m_Wireframe = new Quaternion[nLat + 1, nLon + 1];
-
-            for (int iLat = 0; iLat <= nLat; iLat++)
-            {
-                var qLat = Quaternion.AngleAxis(Mathf.Clamp(latMinPad + iLat * m_CellArc, 
-                    latMinPadClamp, latMaxPadClamp), Vector3.left);
-
-                for (int iLon = 0; iLon <= nLon; iLon++)
-                {
-                    var qLon = Quaternion.AngleAxis(Mathf.Clamp(lonMinPad + iLon * m_CellArc, 
-                        lonMinPadClamp, lonMaxPadClamp), Vector3.up);
-
-                    m_Wireframe[iLat, iLon] = qLon * qLat;
-                }
-            }
         }
     }
 }

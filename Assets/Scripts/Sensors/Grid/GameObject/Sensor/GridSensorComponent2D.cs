@@ -259,6 +259,7 @@ namespace MBaske.Sensors.Grid
                 Result = new DetectionResult(
                     m_GameObjectSettingsMeta.DetectableTags, 
                     ColliderBufferSize),
+
                 Settings = m_GameObjectSettingsMeta,
                 ColliderBufferSize = ColliderBufferSize,
                 ClearCacheOnReset = ClearCacheOnReset,

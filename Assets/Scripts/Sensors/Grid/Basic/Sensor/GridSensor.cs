@@ -22,7 +22,7 @@ namespace MBaske.Sensors.Grid
         public event Action ResetEvent;
 
         /// <summary>
-        /// Optional  to use for the sensor.
+        /// Optional <see cref="IDetector"/> to use for the sensor.
         /// </summary>
         public IDetector Detector { get; private set; }
 
