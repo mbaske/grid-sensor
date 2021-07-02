@@ -95,7 +95,7 @@ There are three options as to what can be detected about a gameobject:
 
 A detectable gameobject must have a [DetectableGameObject](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs) component attached to it. Detectable gameobject types are distinguished by their tags. You can later apply different detection settings for each specific object type/tag. Simply adding the component is sufficient, as long as your sensor only detects the object's position or closest collider point. 
 
-For shape detection on the other hand, it is necessary to generate a set of points, using the `Shape` inspector settings. I'm referring to creating these points as *scanning* an object. For best runtime performance, you would typically do this upfront. Ideally in edit mode, so that points can be serialzed and stored with the detectable object's prefab. Sometimes though, object shapes are dynamic and points can't be generated ahead of time. In that case, you can invoke DetectableGameObject's [ScanShapeRuntime](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs#L67) method. Scanning objects can be costly - if you call this method on multiple objects at once, the scans will be queued and 5 of them are executed per frame. The [Dogfight example](#Dogfight) runs batched scanning at initialization for all the randomized asteroid shapes. When entering play mode, it'll take a moment for all scans to complete.
+For shape detection on the other hand, it is necessary to generate a set of points, using the `Shape` inspector settings. I'm referring to creating these points as *scanning* an object. For best runtime performance, you would typically do this upfront. Ideally in edit mode, so that points can be serialized and stored with the detectable object's prefab. Sometimes though, object shapes are dynamic and points can't be generated ahead of time. In that case, you can invoke DetectableGameObject's [ScanShapeRuntime](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs#L67) method. Scanning objects can be costly - if you call this method on multiple objects at once, the scans will be queued and 5 of them are executed per frame. The [Dogfight example](#Dogfight) runs batched scanning at initialization for all the randomized asteroid shapes. When entering play mode, it'll take a moment for all scans to complete.
 
 ### Shape Settings
 
@@ -103,7 +103,7 @@ For shape detection on the other hand, it is necessary to generate a set of poin
 
 Open your detectable gameobject prefab and enable Gizmos to see how different settings produce various sets of points. The 3D sensor variant uses levels of detail for reducing the amount of points it needs to process, depending on the distance between sensor and object. For 2D, the specified LOD is fixed because detectable points don't change with distance. 
 
-The shape scanning algorithm splits gameobjects into separate *volumes*, if there are multiple disconnected colliders. It then tries to find matching LODs, which works best for similar sized colliders. If your object only has a single or compound collider, you don't need to worry about this.
+The shape scanning algorithm splits gameobjects into separate *volumes*, if they contain multiple disconnected colliders. It then tries to find matching LODs, which works best for similar sized colliders. You don't need to worry about this if your object only has a single or compound collider.
 
 * `Merge Disconnected` - Whether to merge disconnected colliders into a single volume. Can affect LOD points.
 * `Flatten` - Whether to place all points on the gameobject's XZ-plane. This option is typically enabled for 2D detection.
@@ -129,7 +129,7 @@ Drag detectable gameobject prefabs you have prepared onto the `Add Detectable Ob
 
 Here, the barrel prefab from above was added this way. Now the `Detectable Gameobject Settings By Tag` list appears. It contains the detection settings for each detectable gameobject tag. The barrel has the tag "Obstacle", hence that's the name of the first list item.
 
-Importantly, its settings will later apply to *all* detectable gameobjects sharing the "Obstacle" tag. The [Driver](#Driver) example shows how different gameobjects - barrel, cone and roadblock - are all treated equally by the sensor, because they are all tagged "Obstacle". Technically, the sensor could have just used a tag list to achieve this, like Unity's grid sensor does. The reason for this particular workflow is that it enables the sensor component to read custom observable definitions from DetectableGameobject. Which makes implementing your own observables super easy, see below. 
+Importantly, its settings will later apply to *all* detectable gameobjects sharing the "Obstacle" tag. The [Driver](#Driver) example shows how different gameobjects - barrel, cone and roadblock - are all treated equally by the sensor, because they are all tagged "Obstacle". Technically, the sensor could have just used a tag list to accomplish this, like Unity's grid sensor does. The reason for this particular workflow is that it enables the sensor component to read custom observable definitions from DetectableGameobject. Which makes implementing your own observables super easy, see below. 
 
 Every type of detectable object has an `Enabled` option, determining whether it is included in the sensor observations.  
 
@@ -139,9 +139,9 @@ Below that, you set the object's `Detection Type` to `Position`, `Closest Point`
 
 The nested `Observables` list contains the observables associated with the specified tag. Every detectable object type must have at least one enabled observable. There are two default observables, `Distance` and `One-Hot`, which are being added for the 3D and 2D sensor variants respectively, if no custom observables are defined.
 
-Again, use the `Enabled` option to include or exclude a specific observable from detection. The `Debug` color field determines how the associated grid channel is visualized in the inspector, [see above](#Inspector-Settings). Its initial value is picked randomly.
+Again, use the `Enabled` option to include or exclude individual observables from detection. The `Debug` color field determines how the associated grid channel is visualized in the inspector, [see above](#Inspector-Settings). Its initial value is picked randomly.
 
-You can add your own observables by extending [DetectableGameObject](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs) and attaching your derived component to the gameobject prefab instead. For each observable, you need to add its name and getter method to the `Observables` field. Getters are expected to return float values between 0 and +1. Override the `AddObservables` method like in this example:
+You can add your own observables by extending [DetectableGameObject](https://github.com/mbaske/grid-sensor/blob/master/Assets/Scripts/Sensors/Grid/GameObject/Detection/DetectableGameObject.cs) and attaching your derived component to the gameobject prefab instead. For each observable, you need to add its name and getter method to the `Observables` property. Getters are expected to return float values between 0 and +1. Override the `AddObservables` method like in this example:
 
 ```
 public class DangerousBarrel : MBaske.Sensors.Grid.DetectableGameObject
@@ -168,12 +168,12 @@ Unless our cones and roadblocks are toxic and explosive as well, we now have a p
 
 It's possible to delete all but one observable from the list by pressing its `-` button. Pressing `+` will re-add any previously removed observables. Although I'd recommend to just disable them instead. For a derived component containing custom observables, `+` will add `Distance` or `One-Hot` to the list. In the above screenshot, `Distance` was added via the `+` button after dragging the "DangerousBarrel" prefab onto the `Add Detectable Object` field.
 
+Note that all detection settings above apply to a sensor component instance. Different agents can therefore detect different aspects of the same gameobject type. A careless agent for instance would not be able to detect exactly how dangerous a dangerous barrel really is, if you were to exclude the crucial observables from its particular grid sensor.
+<br/><br/>
+
 There are two more general detection settings:
 * `Episode Reset` - Whether to clear the DetectableGameObject cache on sensor reset at the end of each episode. The cache maps detected colliders to their DetectableGameObject instances, so that repeated GetComponent calls can be avoided. This option should be disabled if DetectableGameObject instances don't change from one episode to the next.
 * `Collider Buffer Size` - The maximum number of colliders the sensor can detect at once. The buffer size will double automatically if the buffer is maxed out.
-<br/><br/>
-
-Note that all detection settings, including `Detection Type`s and which observables to enable, are specific to a sensor component instance. Different agents can therefore detect different aspects of the same gameobject type. A careless agent for instance would not be able to detect exactly how dangerous a dangerous barrel really is, if you were to exclude the crucial observables from its particular grid sensor.
 <br/><br/>
 
 ## Sensor Geometry
@@ -209,11 +209,11 @@ Use GUI handles or the settings below for constraining the sensor's field of vie
     - `None` - Ignore agent rotation, sensor is aligned with world forward axis.
 * `Cell Size` - X/Z size of individual grid cells.
 * `Num Cells` - The number of grid cells per axis.
-* `Detection Size (read only)` - Actual detection bounds size of the grid sensor.  
+* `Detection Size` (read only) - Actual detection bounds size of the grid sensor.  
 Values are rounded to match `Cell Size`.  
-Visualized by the blue box in scene view (Gizmos).
+Visualized by the blue box in scene view.
 * `Bounds Size` - Unrounded detection bounds used for editing.  
-Visualized by the white box in scene view (Gizmos).  
+Visualized by the white box in scene view.  
 Use gizmo handles to move and change size. Available key commands in scene GUI:  
     - `S` - Snap to cell size.
     - `C` - Center on X-axis.
