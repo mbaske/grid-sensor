@@ -168,11 +168,11 @@ Unless our cones and roadblocks are toxic and explosive as well, we now have a p
 
 It's possible to delete all but one observable from the list by pressing its `-` button. Pressing `+` will re-add any previously removed observables. Although I'd recommend to just disable them instead. For a derived component containing custom observables, `+` will add `Distance` or `One-Hot` to the list. In the above screenshot, `Distance` was added via the `+` button after dragging the "DangerousBarrel" prefab onto the `Add Detectable Object` field.
 
-Note that all detection settings above apply to a sensor component instance. Different agents can therefore detect different aspects of the same gameobject type. A careless agent for instance would not be able to detect exactly how dangerous a dangerous barrel really is, if you were to exclude the crucial observables from its particular grid sensor.
+Note that all detection settings so far apply to a sensor component instance. Different agents can therefore detect different aspects of the same gameobject type. A careless agent for instance would not be able to detect exactly how dangerous a dangerous barrel really is, if you were to exclude the crucial observables from its particular grid sensor.
 <br/><br/>
 
 There are two more general detection settings:
-* `Episode Reset` - Whether to clear the DetectableGameObject cache on sensor reset at the end of each episode. The cache maps detected colliders to their DetectableGameObject instances, so that repeated GetComponent calls can be avoided. This option should be disabled if DetectableGameObject instances don't change from one episode to the next.
+* `Episode Reset` - Whether to clear the DetectableGameObject cache on sensor reset at the end of each episode. The cache maps detected colliders to their DetectableGameObject instances, so that repeated GetComponent calls can be avoided. This option should be disabled if DetectableGameObject instances don't change from one episode to the next. Keep in mind that all sensor instances utilize a single cache: if one sensor clears it, it will be empty for the others as well. Invoking multiple clear calls at once won't cause any issues or overhead though. 
 * `Collider Buffer Size` - The maximum number of colliders the sensor can detect at once. The buffer size will double automatically if the buffer is maxed out.
 <br/><br/>
 
