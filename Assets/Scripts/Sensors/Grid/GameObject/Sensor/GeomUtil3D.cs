@@ -120,16 +120,17 @@ namespace MBaske.Sensors.Grid
         /// <summary>
         /// Creates a <see cref="Frustum"></see> from a lon/lat rectangle
         /// if none of the polar angles exceed <see cref="Frustum.MaxAngle"/>.
-        /// Calculates frustum sides only, near and far values are set later
-        /// via <see cref="Frustum.Scale"/> method.
         /// </summary>
         /// <param name="lonLatRect">Lon/Lat rectangle</param>
-        /// <returns>Frustum</returns>
-        public static Frustum GetFrustum(Rect lonLatRect)
+        /// <param name="near">Near clip plane</param>
+        /// <param name="far">Far clip plane</param>
+        /// <param name="frustum">Frustum, can be valid or invalid (output)</param>
+        /// <returns>True if frustum is valid</returns>
+        public static bool HasValidFrustum(Rect lonLatRect, float near, float far, out Frustum frustum)
         {
             // Assuming longitudinal symmetry, min lon = max lon * -1.
 
-            var frustum = new Frustum()
+            frustum = new Frustum()
             {
                 IsValid = lonLatRect.max.x <= Frustum.MaxAngle &&
                           lonLatRect.max.y <= Frustum.MaxAngle &&
@@ -152,9 +153,16 @@ namespace MBaske.Sensors.Grid
                 Vector3 t = qLon * qLat * Vector3.forward;
                 t.x = 0;
                 frustum.Top = Mathf.Tan(Vector3.Angle(Vector3.forward, t) * f);
+
+                frustum.Left *= near;
+                frustum.Right *= near;
+                frustum.Bottom *= near;
+                frustum.Top *= near;
+                frustum.Near = near;
+                frustum.Far = far;
             }
 
-            return frustum;
+            return frustum.IsValid;
         }
 
         /// <summary>

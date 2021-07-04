@@ -25,8 +25,9 @@ namespace MBaske.Sensors.Grid
 
         private void ValidateCullingEnabled()
         {
-            var frustum = GeomUtil3D.GetFrustum(m_Constraint.LonLatRect);
-            m_CullingEnabled = frustum.IsValid;
+            m_CullingEnabled = GeomUtil3D.HasValidFrustum(m_Constraint.LonLatRect,
+                Mathf.Max(m_Constraint.MinRadius, 0.01f), m_Constraint.MaxRadius,
+                out Frustum frustum);
 
             if (m_CullingEnabled)
             {
@@ -53,12 +54,8 @@ namespace MBaske.Sensors.Grid
                     m_Camera = nested.GetComponent<Camera>();
                 }
 
-                float near = Mathf.Max(m_Constraint.MinRadius, 0.01f);
-                float far = m_Constraint.MaxRadius;
-                frustum.Scale(near, far);
-
-                m_Camera.nearClipPlane = near;
-                m_Camera.farClipPlane = far;
+                m_Camera.nearClipPlane = frustum.Near;
+                m_Camera.farClipPlane = frustum.Far;
                 m_Camera.projectionMatrix = GeomUtil3D.GetProjectionMatrix(frustum);
 
                 m_ColliderBufferSet = new HashSet<Collider>();

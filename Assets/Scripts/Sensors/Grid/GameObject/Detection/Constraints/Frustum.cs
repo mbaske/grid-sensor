@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace MBaske.Sensors.Grid
 {
@@ -21,20 +22,8 @@ namespace MBaske.Sensors.Grid
         public float Right;
         public float Bottom;
         public float Top;
-
         public float Near;
         public float Far;
-
-        public void Scale(float near, float far)
-        {
-            Near = near;
-            Far = far;
-
-            Left *= near;
-            Right *= near;
-            Bottom *= near;
-            Top *= near;
-        }
 
         public override string ToString()
         {
