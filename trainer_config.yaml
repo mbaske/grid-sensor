@@ -1,6 +1,4 @@
 behaviors:
-
-behaviors:
   MazeExplorer:
     trainer_type: ppo
     hyperparameters:
