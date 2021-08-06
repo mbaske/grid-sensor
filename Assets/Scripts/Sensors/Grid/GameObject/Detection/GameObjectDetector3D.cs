@@ -46,6 +46,7 @@ namespace MBaske.Sensors.Grid
                     nested.localPosition = Vector3.zero;
 
                     m_Camera = nested.gameObject.AddComponent<Camera>();
+                    m_Camera.transform.localRotation = Quaternion.identity;
                     m_Camera.cullingMask = m_LayerMask;
                     m_Camera.enabled = false;
                 }

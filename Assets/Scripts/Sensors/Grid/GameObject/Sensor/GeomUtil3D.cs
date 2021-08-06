@@ -20,7 +20,7 @@ namespace MBaske.Sensors.Grid
                 Vector3.SignedAngle(proj, vector, perp));
 
             lonLat.x = lonLat.x == 180 ? -180 : lonLat.x;
-            lonLat.y = lonLat.y == 180 ? -180 : lonLat.y;
+            lonLat.y = lonLat.y == 90 ? -90 : lonLat.y;
 
             return lonLat;
         }

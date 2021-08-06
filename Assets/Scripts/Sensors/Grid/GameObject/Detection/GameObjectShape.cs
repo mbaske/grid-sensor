@@ -20,7 +20,7 @@ namespace MBaske.Sensors.Grid
 
         #region Point Collections
 
-        // Created by ShapeScanUti.
+        // Created by ShapeScanUtil.
         [SerializeField, HideInInspector]
         private List<ScanResultLOD> m_ScanResultsByLOD;
         // References ScanResultLOD[LOD].LocalPoints
@@ -29,6 +29,11 @@ namespace MBaske.Sensors.Grid
         // On demand: m_LocalPoints -> world.
         [SerializeField, HideInInspector]
         private List<Vector3> m_WorldPoints = new List<Vector3>();
+        /// <summary>
+        /// Scan points centroid at highest detail.
+        /// </summary>
+        [HideInInspector]
+        public Vector3 LocalCentroid;
 
         /// <summary>
         /// Whether there are any points stored.
@@ -49,6 +54,7 @@ namespace MBaske.Sensors.Grid
                 m_ScanResultsByLOD.Clear();
                 m_WorldPoints.Clear();
                 m_LocalPoints.Clear();
+                LocalCentroid = default;
             }
         }
 
@@ -211,7 +217,6 @@ namespace MBaske.Sensors.Grid
             m_DrawGrid = 0;
             m_PointCount = 0;
             m_Projection = 0;
-            //m_ScanAtRuntime = false;
 
             Clear();
         }
@@ -230,6 +235,13 @@ namespace MBaske.Sensors.Grid
             m_ScanLOD = Mathf.Clamp(m_ScanLOD, 0, maxLOD);
             m_GizmoLOD = Mathf.Clamp(m_GizmoLOD, 0, maxLOD);
             SetSelectedLOD(m_SelectedLOD);
+
+            var maxPoints = result[0].LocalPoints;
+            foreach (Vector3 p in maxPoints)
+            {
+                LocalCentroid += p;
+            }
+            LocalCentroid /= maxPoints.Count;
         }
 
         /// <summary>
@@ -304,6 +316,9 @@ namespace MBaske.Sensors.Grid
                         m_PointCount = localPoints.Count; // Info
                     }
                 }
+
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(matrix.MultiplyPoint3x4(LocalCentroid), 0.1f);
 
                 if (m_DrawGrid >= 0.1f)
                 {
