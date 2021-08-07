@@ -300,8 +300,12 @@ namespace MBaske.Sensors.Grid
             else
             {
                 m_Debug_ChannelData?.Dispose();
-                m_GridSensor.UpdateEvent -= m_Debug_GridBufferDrawer.OnSensorUpdate;
-                ((IDebugable)m_GridSensor.Encoder)?.SetDebugEnabled(false);
+
+                if (Debug_HasRuntimeSensor())
+                {
+                    m_GridSensor.UpdateEvent -= m_Debug_GridBufferDrawer.OnSensorUpdate;
+                    ((IDebugable)m_GridSensor.Encoder)?.SetDebugEnabled(false);
+                }
 
                 if (standby)
                 {
@@ -417,6 +421,7 @@ namespace MBaske.Sensors.Grid
 
         private void Awake()
         {
+            //m_Debug_GridBufferDrawer.Disable();
             Debug_CreateSensorOnAwake();
         }
 

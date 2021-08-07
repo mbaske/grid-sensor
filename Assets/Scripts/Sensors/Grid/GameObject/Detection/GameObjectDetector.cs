@@ -133,7 +133,7 @@ namespace MBaske.Sensors.Grid
                             case PointDetectionType.Shape:
                                 float normDistance = constraint.GetNormalizedDistance(
                                         worldToLocalMatrix.MultiplyPoint3x4(
-                                            detectable.GetWorldCentroid()));
+                                            detectable.GetClosestWorldPoint(sensorPos)));
                                 m_WorldPoints.AddRange(
                                     detectable.GetShapeWorldPoints(normDistance));
                                 break;

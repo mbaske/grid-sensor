@@ -29,11 +29,6 @@ namespace MBaske.Sensors.Grid
         // On demand: m_LocalPoints -> world.
         [SerializeField, HideInInspector]
         private List<Vector3> m_WorldPoints = new List<Vector3>();
-        /// <summary>
-        /// Scan points centroid at highest detail.
-        /// </summary>
-        [HideInInspector]
-        public Vector3 LocalCentroid;
 
         /// <summary>
         /// Whether there are any points stored.
@@ -54,7 +49,6 @@ namespace MBaske.Sensors.Grid
                 m_ScanResultsByLOD.Clear();
                 m_WorldPoints.Clear();
                 m_LocalPoints.Clear();
-                LocalCentroid = default;
             }
         }
 
@@ -235,13 +229,6 @@ namespace MBaske.Sensors.Grid
             m_ScanLOD = Mathf.Clamp(m_ScanLOD, 0, maxLOD);
             m_GizmoLOD = Mathf.Clamp(m_GizmoLOD, 0, maxLOD);
             SetSelectedLOD(m_SelectedLOD);
-
-            var maxPoints = result[0].LocalPoints;
-            foreach (Vector3 p in maxPoints)
-            {
-                LocalCentroid += p;
-            }
-            LocalCentroid /= maxPoints.Count;
         }
 
         /// <summary>

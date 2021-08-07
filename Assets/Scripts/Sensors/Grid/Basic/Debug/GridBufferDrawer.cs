@@ -149,7 +149,14 @@ namespace MBaske.Sensors.Grid
                 m_Target.Editor = EditorUtil.GetEditor(property.serializedObject);
             }
 
-            m_Target.EnableRepaint();
+            if (Application.isPlaying && (m_Target.IsEnabled || m_Target.IsStandby))
+            {
+                m_Target.EnableRepaint();
+            }
+            else
+            {
+                return;
+            }
 
             bool draw = Event.current.type == EventType.Repaint;
      

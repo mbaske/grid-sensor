@@ -171,12 +171,6 @@ namespace MBaske.Sensors.Grid
         public Vector3 GetWorldPosition() => transform.position;
 
         /// <summary>
-        /// Returns the shape's centroid to the <see cref="GameObjectDetector"/>.
-        /// </summary>
-        /// <returns>Shape's centroid position in world space</returns>
-        public Vector3 GetWorldCentroid() => transform.TransformPoint(m_Shape.LocalCentroid);
-
-        /// <summary>
         /// Returns the closet point on the gameobject's collider(s) 
         /// to the <see cref="GameObjectDetector"/>.
         /// </summary>
