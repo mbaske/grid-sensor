@@ -304,9 +304,6 @@ namespace MBaske.Sensors.Grid
                     }
                 }
 
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawSphere(matrix.MultiplyPoint3x4(LocalCentroid), 0.1f);
-
                 if (m_DrawGrid >= 0.1f)
                 {
                     Vector3 scale = Vector3.one * m_DrawGrid;
