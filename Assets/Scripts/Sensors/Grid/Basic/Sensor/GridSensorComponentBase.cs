@@ -421,7 +421,7 @@ namespace MBaske.Sensors.Grid
 
         private void Awake()
         {
-            //m_Debug_GridBufferDrawer.Disable();
+            m_Debug_GridBufferDrawer.Disable();
             Debug_CreateSensorOnAwake();
         }
 
